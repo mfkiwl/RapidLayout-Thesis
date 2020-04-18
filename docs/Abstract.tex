@@ -5,17 +5,46 @@
 
 
 \cabstract{
-	摘要内容应概括地反映出本论文的主要内容，主要说明本论文的研究目的、内容、方法、成果和结论。要突出本论文的创造性成果或新见解，不要与引言相混淆。语言力求精练、准确，以300—500字为宜。
-	
-	要开始一个新的段落，在LaTex源文件里面就是增加一个空行。
+	% 摘要内容应概括地反映出本论文的主要内容，主要说明本论文的研究目的、内容、方法、成果和结论。要突出本论文的创造性成果或新见解，不要与引言相混淆。语言力求精练、准确，以300—500字为宜。
+	% 要开始一个新的段落，在LaTex源文件里面就是增加一个空行。
+	现代高端FPGA拥有高计算密集度、丰富的异构硬核资源和专用的高速布线网络，为数字信号处理任务提供近似ASIC的计算性能。近年来，在高性能FPGA上实现大规模
+	高速神经网络加速器在学术界和工业界获得了极大的关注，但此类大规模设计在实现过程中面临着布局和布线的难题。对于高硬核利用率的脉动阵列卷积神经
+	网络加速器，本文提出一种基于进化算法的快速硬核布局方法，在运行时间、线长、流水线寄存器消耗成本、和时钟频率方面超越常用的退火算法和目前最先进的
+	解析算法。本文主要有四大创新点，其一是利用Xilinx UltraScale+ FPGA的RAM与DSP硬核设计了高速卷积脉动阵列，用于卷积神经网络的加速；
+	其二是将FPGA布局转化为有约束的多目标优化问题，提出使用非支配排序遗传算法(NSGA-II)和协方差矩阵适应进化策略(CMA-ES)解决该问题，并设计了
+	创新的基因型表示; 其三是基于Xilinx RapidWright FPGA定制化框架搭建了自动化、端到端的布局布线工具RapidLayout，其运行时间相比Vivado快
+	5--6倍；其四是设计了不同FPGA间的布局迁移学习方法，加速同一设计部署到不同FPGA的布局过程。在此基础上，本文对布局多个指标进行量化并与
+	Versatile-Place-and-Routing (VPR), UTPlaceF 等最先进布局框架进行对比实验，通过数据结果和过程可视化说明了本文提出的布局方法
+	和实现框架已经达到了领先水平。
+
 }
 % 中文关键词(每个关键词之间用“;”分开,最后一个关键词不打标点符号。)
-\ckeywords{研究目的；研究方法；创新性成果；独特见解 }
+\ckeywords{FPGA布局，卷积神经网路加速器}
 
 \eabstract{
-	Image color editing is one of the most generous image processing tasks, which borrows one image’s color characteristics to another so that the color appearance of these two images are visually similar. This is a process to change image color style to another specified style. Color editing techniques can adjust the image's color and its artistic style，according to the needs of different applications, e.g. film production, photo processing and web design. The key problem is how to achieve a satisfied color editing result and preserve the contents of the source image well. 
-	
-	In this paper, we discover many edge-aware smooth methods and non-linear color mapping based color transfer methods in literature. Combined with geometric target region extraction and correction operation, we present two methods to achieve visually satisfied interactive edge-aware image color editing results. One is color distribution mapping based on multi-scale gradient-aware decomposition, and the other is interactive image color transfer based on multi-cue manipulation. The color distribution mapping decomposes the image editing issue into image color edge preservation and color transfer. First, input image is decomposed into multiple detail layers and base layers using edge-preserving WLS operator. 
+	Evolutionary algorithms can outperform conventional placement algorithms such as
+simulated annealing, analytical placement as well as manual placement on metrics
+such as runtime, wirelength, pipelining cost, and clock frequency when mapping
+FPGA hard block intensive designs such as systolic arrays on Xilinx UltraScale+
+FPGAs.  For certain hard-block intensive, systolic array accelerator designs,
+the commercial-grade Xilinx Vivado CAD tool is unable to provide a legal routing
+solution without tedious manual placement
+constraints. Instead, we formulate an automatic FPGA placement algorithm for
+these hard blocks as a multi-objective optimization problem that targets
+wirelength squared and maximum bounding box size metrics.  We build an
+end-to-end placement and routing flow called RapidLayout using the Xilinx
+RapidWright framework.  RapidLayout runs 5--6$\times$ faster than Vivado with
+manual constraints, and eliminates the weeks long effort to manually generate
+placement constraints for the hard blocks. We also perform automated
+post-placement pipelining of the long wires inside each convolution block to
+target 650\,MHz URAM-limited operation. RapidLayout outperforms (1) the
+simulated annealer in VPR by 33\% in runtime, 3.7$\times$ in wirelength, and
+3$\times$ in bounding box size, while also (2) beating the analytical placer
+UTPlaceF by 9.2$\times$ in runtime, 1.7-1.9$\times$ in wirelength, and
+2-3$\times$ in bounding box size. We employ transfer learning from a base FPGA
+device to speed-up placement optimization for similar FPGA devices in the
+UltraScale+ family by 7--12$\times$ than learning the placements from
+scratch. 
 }
 % 英文文关键词（关键词之间用逗号隔开，最后一个关键词不打标点符号。）
-\ekeywords{Image Editing, Edge Preserving, Color Mapping, Color Clustering, Image Inpainting}
+\ekeywords{FPGA Placement, Evolutionary Algorithms}
