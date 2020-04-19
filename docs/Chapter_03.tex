@@ -188,13 +188,9 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 \subsection{基因型解码时的解合法化}
 
 为了适应浮点优化方法，我们通过解合法化 (Solution Legalization) 步骤对基因型采取量化等操作得到实际的布局，这一步骤在解码时进行。
+算法 \ref{algo:distribution} 展示了了分布基因型的解码和合法化过程。由于假定可用资源已知，因此我们首先将分布量化为整数，
+然后将每个整数值限制到每列的最大可放置硬核数。然后，我们将上一步去掉的硬核均匀分给其他的列。
 
-Algorithm \ref{algo:distribution} shows the decoding and legalization process of distribution genotype. 
-As the available resources are assumed to be known, we first quantize the
-distribution to integer and clip each number to maximum number of placeable
-blocks at each column. Then, we distribute the shortage resulting from clipping to underfilled columns evenly. 
-
-distribution legalization
 \begin{algorithm}
 	\SetKwFunction{GetDistribution}{GetDistribution}
 	\SetKwFunction{Normalize}{Normalize}
@@ -236,13 +232,14 @@ distribution legalization
 	\label{algo:distribution}
 \end{algorithm}
 
-Algorithm \ref{algo:location} demonstrate the placement legalization for location genotype. 
+算法 \ref{algo:location} 展示了位置基因型的解码与合法化过程。
+由于硬块位置是离散的，因此将对基因型中的连续值进行量化。
+每个量化后的值都是级联链中第一个硬核的位置，所以从位置基因型直接解码的级联链位置可能会重叠或超出列中可用的硬核范围。
+因此，我们对量化的位置进行排序，并从下至上调整位置。
+位置调整首先检查可用的硬核是否足以放置该列剩余的级联链，如果不能则将当前级联链向下调整到所需位置，
+来使超出范围的硬核放置合法化。
+另一方面，如果当前组与前一组重叠，则将其调整为向上移动，直到合法放置为止。
 
-As hard-block locations are discrete, the value is quantized. Because that each quantized value is the position of the first block in a cascade chain, it is possible that placement directly translated from location genotype may overlap or exceeds the range of available hard blocks in the column. Therefore, we sort the quantized locations and adjust the placement from bottom to top. 
-
-The location adjustment legalize out-of-range solutions by checking if the available hard blocks are enough to place the rest of the groups. If the blocks are not enough, we move back the current group to make room for the rest. On the other hand, if the current group overlaps with the previous group, it is adjusted to move upward until the placement is legal.
-
-location legalization
 \begin{algorithm}
 	\SetKwFunction{GetLocation}{GetLocation}
 	\SetKwFunction{Partition}{Partition}
@@ -276,18 +273,99 @@ location legalization
 	\label{algo:location}
 \end{algorithm}
 
+由于Mapping基因型只优化编码的顺序，而不对编码的值进行修改，所以不会产生不合法编码，也就不需要解合法化。
+以上内容详细阐述了解合法化的步骤，这些步骤保证了布局结果满足三个限制条件，并且与解析布局方法(Analytical Placement)
+相比，我们的合法化步骤开销更低。
 
 
 
+\section{布局框架工作流：RapidLayout Design Flow}
 
 
-我们的合法化步骤十分便宜
+% figure: design flow
+
+\tikzstyle{block} = [thick, rectangle, draw, fill=white, text width=12em, text centered, rounded corners, minimum height=2em]
+\tikzstyle{invisiblock} = [rectangle, fill=white, text width=12em, text centered, rounded corners, minimum height=2em]
+\tikzstyle{decisionblock} = [rectangle, draw, fill=blue!20, text width=12em, text centered, rounded corners, minimum height=2em]
+\tikzstyle{line} = [draw, -latex']
 
 
+\pgfdeclarelayer{bg}    % declare background layer
+\pgfsetlayers{bg,main}  % set the order of the layers (main is the standard layer)
 
-\section{RapidLayout Design Flow}
 
+\begin{figure}
+ \begin{center}
+ \begin{tikzpicture}[node distance=1.5cm and 3.5cm, scale=1, transform shape]
+   % Place nodes
+   \node [invisiblock] (input) {Convolution Block DCP};
+   \node [block, below of=input] (replicate) {Netlist Replication {\bf [\textless 1s]}};
+   \circledat{A}{replicate.north west};
+   \node [block, below of=replicate, minimum height=7em, node distance=2.5cm] (evolve) {Evolutionary\\ Hard Block\\ Placement\\ {\bf [30\,s--5\,min]}};
+   \circledat{B}{evolve.north west};
+   \node [block, below of=evolve, node distance=2.5cm] (siteroute) {Placement and\\ Site Routing {\bf [$\approx$3\,min]}};
+   \circledat{C}{siteroute.north west};
+   \node [block, below of=siteroute] (pipeline) {Post-Placement\\Pipelining {\bf [$\approx$10\,s]}};
+   \circledat{D}{pipeline.north west};
+   \node [block, below=0.75cm of pipeline] (vivado) {SLR Placement\\ and Routing {\bf [$\approx$54\,min]}};
+   \circledat{E}{vivado.north west};
+   \node [block, below=0.75cm of vivado] (slr) {SLR Replication {\bf [$\approx$2\,min]}};
+   \circledat{F}{slr.north west};
+   % Draw sub-nodes
+  	 \node [block, fill=olive!50, right=1cm of evolve] (two) {Compute objective};
+   \node [block, fill=olive!50, above of=two] (one) {Generate candidates};
+   \node [block, fill=olive!50, below of=two] (three) {Update};
+   % Inner loop highlight
+   \begin{pgfonlayer}{bg}
+   
+   \path[rounded corners, draw=blue, thick, fill=blue!10,opacity=0.9] 
+	([xshift=-0.75em,yshift=0.75em]vivado.north west) to ([xshift=10em,yshift=0.75em]vivado.north east) 
+	to ([xshift=10em,yshift=-0.75em]vivado.south east) to ([xshift=-0.75em,yshift=-0.75em]vivado.south west) -- cycle;
+   
+   
+   \path[rounded corners, draw=red, thick, fill=red!10,opacity=0.9] 
+	([xshift=-0.75em,yshift=0.75em]replicate.north west) to 
+ ([xshift=20em,yshift=0.75em]replicate.north east) to 
+ ([xshift=20em,yshift=-0.75em]slr.south east) to
+ ([xshift=-0.75em,yshift=-0.75em]slr.south west) to
+ ([xshift=-0.75em,yshift=0.75em]slr.north west) to 
+ ([xshift=12em,yshift=0.75em]slr.north east) to
+	([xshift=12em,yshift=-0.75em]pipeline.south east) to 
+ ([xshift=-0.75em,yshift=-0.75em]pipeline.south west) -- cycle;
+   
+   \path[rounded corners, draw=olive, thick, fill=olive!10,opacity=0.9] 
+	([xshift=-0.5em,yshift=0.5em]evolve.north west) to ([xshift=0.5em,yshift=0.5em]evolve.north east) 
+	to ([xshift=-0.5em,yshift=1.5em]one.north west) to ([xshift=3.5em,yshift=1.5em]one.north east) 
+	to ([xshift=3.5em,yshift=-1.5em]three.south east) to ([xshift=-0.5em,yshift=-1.5em]three.south west) 
+	to ([xshift=0.5em,yshift=-0.5em]evolve.south east) to ([xshift=-0.5em,yshift=-0.5em]evolve.south west) -- cycle;
+   \end{pgfonlayer}
+   
+   %\node [draw=none,below right=0.1cm of three] (opt4j) {\bf Opt4J};
+   \node [draw=none,right=3.5cm of slr] (RapidWright) {\Large \bf RapidWright};
+   \node [draw=none,right=1.75cm of vivado] (RapidWright) {\Large \bf Vivado};
+   
+   \node [invisiblock,below of=slr] (output) {Bitstream};
+   % Draw edges
+   \path [line, thick] (input) -- (replicate);
+   \path [line, thick] (replicate) -- (evolve);
+   \path [line, thick] (evolve) -- (siteroute);
+   \path [line, thick] (siteroute) -- (pipeline);
+   \path [line, thick] (pipeline) -- (vivado);
+   \path [line, thick] (vivado) -- (slr);
+   \path [line, thick] (slr) -- (output);
+   % Draw sub-edges
+   \path [line, thick] (one) -- (two);
+   \path [line, thick] (two) -- (three);
+   % Loops
+   \path [line, thick] (three.east) -- ([xshift=0.8cm]three.east) -- ([xshift=0.8cm]one.east) node [midway, above, sloped, rotate=180] (textnode0) {evolve} -- (one.east);
 
+ \end{tikzpicture}
+ \end{center}
+	\caption{RapidLayout Design Flow with runtime details for the Xilinx VU11P
+ FPGA along with tool usage information. Bulk of the intelligent exploration is done in RapidWright, and Vivado is only invoked at the end for final placement and routing.}
+	\label{fig:flow}
+ \vspace{-0.1in}
+\end{figure}
 
 
 
