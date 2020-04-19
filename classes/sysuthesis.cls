@@ -31,7 +31,7 @@
 \RequirePackage{calc}
 \RequirePackage{graphicx}
 \RequirePackage[labelsep=space]{caption}
-\RequirePackage[font=footnotesize]{subcaption}
+%\RequirePackage[font=footnotesize]{subcaption}
 \RequirePackage{amsmath,amssymb,amsthm}
 \RequirePackage{listings}
 \RequirePackage{longtable}
@@ -784,3 +784,12 @@
     \fi
 }
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+
+
+
+
+\usepackage{tikz}
+\usetikzlibrary{shapes, shapes.geometric, arrows, calc, shadows, matrix, fit, patterns, backgrounds, circuits.logic.US, automata, math, decorations, decorations.pathmorphing}
+\usepackage{subfig}
+\usepackage[export]{adjustbox}

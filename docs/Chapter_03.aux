@@ -5,11 +5,37 @@
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {3.1}本章小结}{5}{section.3.1}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}问题建模}{5}{section.3.1}}
+\newlabel{eq:obj1}{{3.1}{5}{问题建模}{equation.3.1.1}{}}
+\newlabel{eq:obj2}{{3.2}{5}{问题建模}{equation.3.1.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-1}{\ignorespaces Xilinx UltraScale+ VU11P 硬核列分布示意图\relax }}{6}{figure.caption.4}}
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:architecture}{{3-1}{6}{Xilinx UltraScale+ VU11P 硬核列分布示意图\relax }{figure.caption.4}{}}
+\newlabel{eq:region}{{3.3}{6}{问题建模}{equation.3.1.3}{}}
+\newlabel{eq:overlap}{{3.4}{6}{问题建模}{equation.3.1.4}{}}
+\newlabel{eq:cascade}{{3.5}{6}{问题建模}{equation.3.1.5}{}}
+\citation{ug903}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}布局问题的目标函数}{7}{subsection.3.1.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}布局问题的限制条件}{7}{subsection.3.1.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}基于进化算法硬核布局的基因型设计}{7}{section.3.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}进化算法的基因型设计}{7}{subsection.3.2.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-2}{\ignorespaces Our three-tier genotype design for hard block placement. (a) Distribution defines the amount of hard blocks to be placed in each column. (b) Location encodes the relative position of the corresponding hard blocks in its column. (c) Mapping defines the connectivity of hard blocks, i.e., which hard blocks are mapped to one convolution unit. The selected physical hard-block groups are numbered, which corresponds to the mapping genotype. \relax }}{8}{figure.caption.5}}
+\newlabel{fig:genotype}{{3-2}{8}{Our three-tier genotype design for hard block placement. (a) Distribution defines the amount of hard blocks to be placed in each column. (b) Location encodes the relative position of the corresponding hard blocks in its column. (c) Mapping defines the connectivity of hard blocks, i.e., which hard blocks are mapped to one convolution unit. The selected physical hard-block groups are numbered, which corresponds to the mapping genotype. \relax }{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {distribution}}}{8}{subfigure.2.1}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {location}}}{8}{subfigure.2.2}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(c)}{\ignorespaces {mapping}}}{8}{subfigure.2.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}基因型解码时的解合法化}{9}{subsection.3.2.2}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {3.1}{\ignorespaces Distribution genotype legalization\relax }}{9}{algocf.3.1}}
+\newlabel{algo:distribution}{{3.1}{9}{基因型解码时的解合法化}{algocf.3.1}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {3.2}{\ignorespaces Location genotype legalization\relax }}{10}{algocf.3.2}}
+\newlabel{algo:location}{{3.2}{10}{基因型解码时的解合法化}{algocf.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}RapidLayout Design Flow}{10}{section.3.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Example Walkthrough}{10}{section.3.4}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}本章小结}{10}{section.3.5}}
 \FN@pp@footnotehinttrue 
 \@setckpt{docs/Chapter_03}{
-\setcounter{page}{6}
-\setcounter{equation}{0}
+\setcounter{page}{11}
+\setcounter{equation}{5}
 \setcounter{enumi}{0}
 \setcounter{enumii}{0}
 \setcounter{enumiii}{0}
@@ -18,24 +44,22 @@
 \setcounter{mpfootnote}{0}
 \setcounter{part}{0}
 \setcounter{chapter}{3}
-\setcounter{section}{1}
+\setcounter{section}{5}
 \setcounter{subsection}{0}
 \setcounter{subsubsection}{0}
 \setcounter{paragraph}{0}
 \setcounter{subparagraph}{0}
-\setcounter{figure}{0}
+\setcounter{figure}{2}
 \setcounter{table}{0}
 \setcounter{ContinuedFloat}{0}
-\setcounter{subfigure}{0}
-\setcounter{subtable}{0}
 \setcounter{parentequation}{0}
 \setcounter{lstnumber}{1}
 \setcounter{LT@tables}{3}
 \setcounter{LT@chunks}{4}
-\setcounter{AlgoLine}{0}
-\setcounter{algocfline}{0}
-\setcounter{algocfproc}{0}
-\setcounter{algocf}{0}
+\setcounter{AlgoLine}{15}
+\setcounter{algocfline}{2}
+\setcounter{algocfproc}{2}
+\setcounter{algocf}{2}
 \setcounter{lofdepth}{1}
 \setcounter{lotdepth}{1}
 \setcounter{nlinenum}{0}
@@ -53,8 +77,13 @@
 \setcounter{Item}{0}
 \setcounter{Hfootnote}{0}
 \setcounter{Hy@AnnotLevel}{0}
-\setcounter{bookmark@seq@number}{14}
+\setcounter{bookmark@seq@number}{18}
 \setcounter{BackrefHyperFootnoteCounter}{0}
+\setcounter{KVtest}{0}
+\setcounter{subfigure}{0}
+\setcounter{subfigure@save}{3}
+\setcounter{subtable}{0}
+\setcounter{subtable@save}{0}
 \setcounter{lstlisting}{0}
 \setcounter{section@level}{1}
 }
