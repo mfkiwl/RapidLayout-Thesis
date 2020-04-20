@@ -44,7 +44,7 @@
 \RequirePackage{tocloft}
 \RequirePackage{wrapfig}
 \RequirePackage{colortbl}
-\RequirePackage{xcolor}
+%\RequirePackage{xcolor}
 \RequirePackage{array}
 \RequirePackage{makecell}
 \RequirePackage[bottom, perpage]{footmisc}
@@ -795,6 +795,11 @@
 \usepackage[export]{adjustbox}
 \newcommand{\circledat}[2]{%
 \node[shape=circle,draw,fill=red,text=white,inner sep=2pt] (char) at (#2) {#1};}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+\node[shape=circle,draw,fill=red,text=white,inner sep=2pt] (char) {#1};}}
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
 \usetikzlibrary{positioning}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{multirow}
