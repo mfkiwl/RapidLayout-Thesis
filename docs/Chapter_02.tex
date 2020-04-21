@@ -3,34 +3,71 @@
 
 
 
-% 基本原理和概念
+\section{神经网络硬件加速}
 
-\section{卷积神经网络}
-
-
-
-\section{基于FPGA的卷积神经网络加速器}
-
-
-
-
-\section{FPGA实现}
-% 介绍FPGA实现，synthesis - technology mapping - placement - routing etc
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/line-buffer}
+	\caption{Line Buffer型卷积计算单元} 
+	\label{fig:conv}
+\end{figure}
 
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/array}
+	\caption{脉动阵列卷积计算单元} 
+	\label{fig:conv}
+\end{figure}
 
-\section{FPGA硬核}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/cascade}
+	\caption{卷积运算单元和矩阵乘法运算单元级联的脉动阵列} 
+	\label{fig:conv}
+\end{figure}
+
+
+\section{FPGA实现原理}
+
+
+\section{RapidWright FPGA实现框架}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/vivado_dcps}
+	\caption{RapidWright FPGA实现框架} 
+	\label{fig:rapidwright}
+\end{figure}
+
+
+
+\section{FPGA计算架构构成}
+
+
+\subsection{现代异构FPGA的组成架构}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/hierarchy}
+	\caption{Xilinx FPGA 可编程硬件级别} 
+	\label{fig:hierarchy}
+\end{figure}
+
+\subsection{UltraScale+ IP硬核介绍}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/hardblocks}
+	\caption{Xilinx UltraScale+ IP硬核介绍} 
+	\label{fig:hardblocks}
+\end{figure}
+
+\section{FPGA布局算法}
 
 
 \section{进化算法}
-% meta-heuristics
-
-
-\section{本章小结}
-
-
-
 
 
 
