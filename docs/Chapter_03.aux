@@ -1,36 +1,110 @@
 \relax 
 \providecommand\hyper@newdestlabel[2]{}
 \FN@pp@footnotehinttrue 
-\@writefile{toc}{\contentsline {chapter}{\numberline {第3章\hspace  {.3em}}基于进化算法的FPGA脉动阵列快速硬核布局方法}{7}{chapter.3}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {第3章\hspace  {.3em}}基于进化算法的FPGA脉动阵列快速硬核布局方法}{19}{chapter.3}}
 \@writefile{lof}{\addvspace {10.0pt}}
 \@writefile{lot}{\addvspace {10.0pt}}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {3.1}问题建模}{7}{section.3.1}}
-\newlabel{eq:obj1}{{3.1}{7}{问题建模}{equation.3.1.1}{}}
-\newlabel{eq:obj2}{{3.2}{7}{问题建模}{equation.3.1.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3-1}{\ignorespaces Xilinx UltraScale+ VU11P 硬核列分布示意图\relax }}{8}{figure.caption.10}}
-\newlabel{fig:architecture}{{3-1}{8}{Xilinx UltraScale+ VU11P 硬核列分布示意图\relax }{figure.caption.10}{}}
-\newlabel{eq:region}{{3.3}{8}{问题建模}{equation.3.1.3}{}}
-\newlabel{eq:overlap}{{3.4}{8}{问题建模}{equation.3.1.4}{}}
-\newlabel{eq:cascade}{{3.5}{8}{问题建模}{equation.3.1.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}问题建模}{19}{section.3.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-1}{\ignorespaces Xilinx UltraScale+ VU11P 硬核列分布示意图\relax }}{20}{figure.caption.12}}
+\newlabel{fig:architecture}{{3-1}{20}{Xilinx UltraScale+ VU11P 硬核列分布示意图\relax }{figure.caption.12}{}}
+\newlabel{eq:obj1}{{3.1}{20}{问题建模}{equation.3.1.1}{}}
+\newlabel{eq:obj2}{{3.2}{20}{问题建模}{equation.3.1.2}{}}
+\newlabel{eq:region}{{3.3}{20}{问题建模}{equation.3.1.3}{}}
+\newlabel{eq:overlap}{{3.4}{20}{问题建模}{equation.3.1.4}{}}
+\newlabel{eq:cascade}{{3.5}{20}{问题建模}{equation.3.1.5}{}}
 \citation{ug903}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}布局问题的目标函数}{9}{subsection.3.1.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}布局问题的限制条件}{9}{subsection.3.1.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}基于进化算法硬核布局的基因型设计}{9}{section.3.2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}进化算法的基因型设计}{9}{subsection.3.2.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3-2}{\ignorespaces Our three-tier genotype design for hard block placement. (a) Distribution defines the amount of hard blocks to be placed in each column. (b) Location encodes the relative position of the corresponding hard blocks in its column. (c) Mapping defines the connectivity of hard blocks, i.e., which hard blocks are mapped to one convolution unit. The selected physical hard-block groups are numbered, which corresponds to the mapping genotype. \relax }}{10}{figure.caption.11}}
-\newlabel{fig:genotype}{{3-2}{10}{Our three-tier genotype design for hard block placement. (a) Distribution defines the amount of hard blocks to be placed in each column. (b) Location encodes the relative position of the corresponding hard blocks in its column. (c) Mapping defines the connectivity of hard blocks, i.e., which hard blocks are mapped to one convolution unit. The selected physical hard-block groups are numbered, which corresponds to the mapping genotype. \relax }{figure.caption.11}{}}
-\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {distribution}}}{10}{subfigure.2.1}}
-\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {location}}}{10}{subfigure.2.2}}
-\@writefile{lof}{\contentsline {subfigure}{\numberline{(c)}{\ignorespaces {mapping}}}{10}{subfigure.2.3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}基因型解码时的解合法化}{11}{subsection.3.2.2}}
-\@writefile{loa}{\contentsline {algocf}{\numberline {3.1}{\ignorespaces Distribution genotype legalization\relax }}{11}{algocf.3.1}}
-\newlabel{algo:distribution}{{3.1}{11}{基因型解码时的解合法化}{algocf.3.1}{}}
-\@writefile{loa}{\contentsline {algocf}{\numberline {3.2}{\ignorespaces Location genotype legalization\relax }}{12}{algocf.3.2}}
-\newlabel{algo:location}{{3.2}{12}{基因型解码时的解合法化}{algocf.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}进化算法：NSGA-II与CMA-ES}{12}{section.3.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}布局问题的目标函数}{21}{subsection.3.1.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}布局问题的限制条件}{21}{subsection.3.1.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-2}{\ignorespaces  本文提出的“三段”式硬核布局基因型设计。 (a) Distribution 限定了每一列中选定用于布局的硬核个数； (b) Location 限定每一个硬核在该列中的相对位置； (c) Mapping 规定了硬核之间的连接关系，也就是逻辑网表中的硬核与FPGA上物理位置的一一对应关系。 \relax }}{22}{figure.caption.13}}
+\newlabel{fig:genotype}{{3-2}{22}{本文提出的“三段”式硬核布局基因型设计。 (a) Distribution 限定了每一列中选定用于布局的硬核个数； (b) Location 限定每一个硬核在该列中的相对位置； (c) Mapping 规定了硬核之间的连接关系，也就是逻辑网表中的硬核与FPGA上物理位置的一一对应关系。 \relax }{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(a)}{\ignorespaces {distribution}}}{22}{subfigure.2.1}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(b)}{\ignorespaces {location}}}{22}{subfigure.2.2}}
+\@writefile{lof}{\contentsline {subfigure}{\numberline{(c)}{\ignorespaces {mapping}}}{22}{subfigure.2.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}基于进化算法硬核布局的基因型设计}{22}{section.3.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}进化算法的基因型设计}{22}{subsection.3.2.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}基因型解码时的解合法化}{23}{subsection.3.2.2}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {3.1}{\ignorespaces Distribution genotype legalization\relax }}{24}{algocf.3.1}}
+\newlabel{algo:distribution}{{3.1}{24}{基因型解码时的解合法化}{algocf.3.1}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {3.2}{\ignorespaces Location genotype legalization\relax }}{24}{algocf.3.2}}
+\newlabel{algo:location}{{3.2}{24}{基因型解码时的解合法化}{algocf.3.2}{}}
 \citation{deb2002fast}
 \citation{li2019deep}
 \citation{lu2019nsga}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}非支配排序遗传算法：NSGA-II}{13}{subsection.3.3.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3-3}{\ignorespaces NSGA-II的优化过程：首先亲代通过交叉变异产生同等数量的子代，然后通过Non-dominated Sorting将种群个体分为 多个帕累托前端（Pareto-Front)，并淘汰一部分劣势个体。如果同一个帕累托前端内的个体需要淘汰，则通过Crowd-Distance
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}进化算法：NSGA-II与CMA-ES}{25}{section.3.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}非支配排序遗传算法：NSGA-II}{25}{subsection.3.3.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-3}{\ignorespaces NSGA-II的优化过程：首先亲代通过交叉变异产生同等数量的子代，然后通过Non-dominated Sorting将种群个体分为 多个帕累托前端（Pareto-Front)，并淘汰一部分劣势个体。如果同一个帕累托前端内的个体需要淘汰，则通过Crowd-Distance Sorting 保留具有代表性的子代，最终淘汰一半种产生下一代亲代。\relax }}{25}{figure.caption.16}}
+\newlabel{fig:NSGA-II}{{3-3}{25}{NSGA-II的优化过程：首先亲代通过交叉变异产生同等数量的子代，然后通过Non-dominated Sorting将种群个体分为 多个帕累托前端（Pareto-Front)，并淘汰一部分劣势个体。如果同一个帕累托前端内的个体需要淘汰，则通过Crowd-Distance Sorting 保留具有代表性的子代，最终淘汰一半种产生下一代亲代。\relax }{figure.caption.16}{}}
+\citation{cmapaper}
+\citation{nn2016cma}
+\citation{large-scale-cma}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}协方差矩阵适应进化策略：CMA-ES}{26}{subsection.3.3.2}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {3.3}{\ignorespaces The $(\mu /\mu _W, \lambda )$ CMA-ES Algorithm\relax }}{27}{algocf.3.3}}
+\newlabel{algo:cma}{{3.3}{27}{协方差矩阵适应进化策略：CMA-ES}{algocf.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}RapidLayout布局框架}{27}{section.3.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-4}{\ignorespaces RapidLayout工作流，以Xilinx VU11P FPGA上的实现流程为例。主要的布局优化和物理实现工作由RapidWright API开发完成，Vivado只负责 控制逻辑布局以及SLR内的布线。\relax }}{28}{figure.caption.18}}
+\newlabel{fig:flow}{{3-4}{28}{RapidLayout工作流，以Xilinx VU11P FPGA上的实现流程为例。主要的布局优化和物理实现工作由RapidWright API开发完成，Vivado只负责 控制逻辑布局以及SLR内的布线。\relax }{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}RapidLayout以Xilinx VU11P FPGA为例的布局实现过程}{30}{section.3.5}}
+\newlabel{sec:visual}{{3.5}{30}{RapidLayout以Xilinx VU11P FPGA为例的布局实现过程}{section.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-5}{\ignorespaces 一个卷积计算单元的布局结果可视化。此卷积计算单元的RTL设计如图ref{fig:sys}所示。其中 布局使用的硬核高亮标出，整体的布线范围使用灰色阴影区域标出\relax }}{30}{figure.caption.19}}
+\newlabel{fig:block1}{{3-5}{30}{一个卷积计算单元的布局结果可视化。此卷积计算单元的RTL设计如图ref{fig:sys}所示。其中 布局使用的硬核高亮标出，整体的布线范围使用灰色阴影区域标出\relax }{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-6}{\ignorespaces 最小可复制矩形区域内的布局结果可视化。此最小可复制矩形域放置了80个卷积计算单元，图\ref  {fig:block1}的 位置在图中标出用作比例参考\relax }}{31}{figure.caption.20}}
+\newlabel{fig:block80}{{3-6}{31}{最小可复制矩形区域内的布局结果可视化。此最小可复制矩形域放置了80个卷积计算单元，图\ref {fig:block1}的 位置在图中标出用作比例参考\relax }{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3-7}{\ignorespaces 从最小可重复矩形区域内的布局结果到完整FPGA实现过程示意图。首先，最小可重复 矩形内的布局结果经过一次复制充满SLR0，RapidLayout对布局结果和逻辑网表同时进行复制。然后RapidLayout调用Vivado完成SLR0 的布局布线，得到SLR0的完整实现。最后，RapidLayout使用RapidWright API将SLR0的布局结果和布线结果复用到 SLR1和SLR2，得到完整的FPGA实现。\relax }}{31}{figure.caption.21}}
+\newlabel{fig:fullchip}{{3-7}{31}{从最小可重复矩形区域内的布局结果到完整FPGA实现过程示意图。首先，最小可重复 矩形内的布局结果经过一次复制充满SLR0，RapidLayout对布局结果和逻辑网表同时进行复制。然后RapidLayout调用Vivado完成SLR0 的布局布线，得到SLR0的完整实现。最后，RapidLayout使用RapidWright API将SLR0的布局结果和布线结果复用到 SLR1和SLR2，得到完整的FPGA实现。\relax }{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.6}本章小结}{32}{section.3.6}}
+\FN@pp@footnotehinttrue 
+\@setckpt{docs/Chapter_03}{
+\setcounter{page}{33}
+\setcounter{equation}{5}
+\setcounter{enumi}{6}
+\setcounter{enumii}{0}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{0}
+\setcounter{mpfootnote}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{3}
+\setcounter{section}{6}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{figure}{7}
+\setcounter{table}{0}
+\setcounter{ContinuedFloat}{0}
+\setcounter{parentequation}{0}
+\setcounter{lstnumber}{1}
+\setcounter{LT@tables}{3}
+\setcounter{LT@chunks}{4}
+\setcounter{AlgoLine}{15}
+\setcounter{algocfline}{3}
+\setcounter{algocfproc}{3}
+\setcounter{algocf}{3}
+\setcounter{lofdepth}{1}
+\setcounter{lotdepth}{1}
+\setcounter{nlinenum}{0}
+\setcounter{pp@next@reset}{1}
+\setcounter{@fnserial}{0}
+\setcounter{cp@cntr}{0}
+\setcounter{theorem}{0}
+\setcounter{proposition}{0}
+\setcounter{lemma}{0}
+\setcounter{corollary}{0}
+\setcounter{definition}{0}
+\setcounter{remark}{0}
+\setcounter{eg}{0}
+\setcounter{NAT@ctr}{0}
+\setcounter{Item}{6}
+\setcounter{Hfootnote}{0}
+\setcounter{Hy@AnnotLevel}{0}
+\setcounter{bookmark@seq@number}{19}
+\setcounter{BackrefHyperFootnoteCounter}{0}
+\setcounter{KVtest}{0}
+\setcounter{subfigure}{0}
+\setcounter{subfigure@save}{3}
+\setcounter{subtable}{0}
+\setcounter{subtable@save}{0}
+\setcounter{lstlisting}{0}
+\setcounter{section@level}{1}
+}

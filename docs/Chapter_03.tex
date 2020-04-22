@@ -1,6 +1,9 @@
 \chapter{基于进化算法的FPGA脉动阵列快速硬核布局方法}
 
-
+本章详细介绍本文的布局问题建模，NSGA-II和CMA-ES的算法原理，RapidLayout框架流程与实现细节。首先介绍了
+面向 UltraScale+ FPGA 的布局问题建模，明确了问题的优化目标与限制；其次讨论了本文的创新基因型设计与相应的
+解合法化过程；然后阐述了NSGA-II与CMA-ES的算法原理与实现方案；最终介绍了RapidLayout布局框架的工作流，并
+以层层递进的方式举例阐述了脉动阵列的布局实现过程。
 
 \section{问题建模}
 
@@ -147,11 +150,18 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 		\includegraphics[width = 0.23\textwidth, valign=t]{figure/geno-mapping.pdf}
 	}
 	
-	\caption{Our three-tier genotype design for hard block placement. 
-	(a) Distribution defines the amount of hard blocks to be placed in each column. 
-	(b) Location encodes the relative position of the corresponding hard blocks in its column. 
-	(c) Mapping defines the connectivity of hard blocks, i.e., which hard blocks are mapped to one convolution unit. 
-	The selected physical hard-block groups are numbered, which corresponds to the mapping genotype.
+	% \caption{Our three-tier genotype design for hard block placement. 
+	% (a) Distribution defines the amount of hard blocks to be placed in each column. 
+	% (b) Location encodes the relative position of the corresponding hard blocks in its column. 
+	% (c) Mapping defines the connectivity of hard blocks, i.e., which hard blocks are mapped to one convolution unit. 
+	% The selected physical hard-block groups are numbered, which corresponds to the mapping genotype.
+	% }
+
+	\caption{
+		本文提出的“三段”式硬核布局基因型设计。
+		(a) Distribution 限定了每一列中选定用于布局的硬核个数；
+		(b) Location 限定每一个硬核在该列中的相对位置；
+		(c) Mapping 规定了硬核之间的连接关系，也就是逻辑网表中的硬核与FPGA上物理位置的一一对应关系。
 	}
 	
 	
@@ -487,9 +497,13 @@ CMA-ES的空间复杂度由二次减低为线性，加快了大规模问题的�
 
  \end{tikzpicture}
  \end{center}
-	\caption{RapidLayout Design Flow with runtime details for the Xilinx VU11P
- FPGA along with tool usage information. Bulk of the intelligent exploration is done in RapidWright, and Vivado is only invoked at the end for final placement and routing.}
-	\label{fig:flow}
+% 	\caption{RapidLayout Design Flow with runtime details for the Xilinx VU11P
+%  FPGA along with tool usage information. Bulk of the intelligent exploration is done in RapidWright, and Vivado is only invoked at the end for final placement and routing.}
+ 
+ \caption{RapidLayout工作流，以Xilinx VU11P FPGA上的实现流程为例。主要的布局优化和物理实现工作由RapidWright API开发完成，Vivado只负责
+ 控制逻辑布局以及SLR内的布线。}
+ 
+ \label{fig:flow}
  \vspace{-0.1in}
 \end{figure}
 
@@ -549,20 +563,24 @@ RapidLayout负责完成硬核布局布线，控制逻辑和流水线寄存器等
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth, valign=c]{figure/block1.pdf}
-\caption{Floorplan layout visualization of a single convolution block
-implementation supporting dual 3$\times$3 kernels to match URAM bandwidth. This
-is the design shown in Figure~\ref{fig:RTL} earlier. The
-bounding polygon that encloses all hard blocks and the routing connections is
-shown in gray.}
+% \caption{Floorplan layout visualization of a single convolution block
+% implementation supporting dual 3$\times$3 kernels to match URAM bandwidth. This
+% is the design shown in Figure~\ref{fig:RTL} earlier. The
+% bounding polygon that encloses all hard blocks and the routing connections is
+% shown in gray.}
+\caption{一个卷积计算单元的布局结果可视化。此卷积计算单元的RTL设计如图ref{fig:sys}所示。其中
+布局使用的硬核高亮标出，整体的布线范围使用灰色阴影区域标出}
 \label{fig:block1}	
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=0.8\textwidth, valign=c]{figure/block80.pdf}
-\caption{Floorplan layout visualization of a single repeating rectangular region
- layout with 80 convolution blocks. The bounding polygon from
-Figure~\ref{fig:block1} is also shown here for scale.}
+% \caption{Floorplan layout visualization of a single repeating rectangular region
+%  layout with 80 convolution blocks. The bounding polygon from
+% Figure~\ref{fig:block1} is also shown here for scale.}
+\caption{最小可复制矩形区域内的布局结果可视化。此最小可复制矩形域放置了80个卷积计算单元，图\ref{fig:block1}的
+位置在图中标出用作比例参考}
 \label{fig:block80}	
 \end{figure}
 
@@ -587,7 +605,7 @@ RapidLayout框架中，包含单个卷积单元的位置信息、整体的布局
 
 \begin{figure}
 \centering	
-\scalebox{1.5}{%
+\scalebox{1.2}{%
  \begin{tikzpicture}
  \centering
    \pgftext{%
@@ -626,10 +644,15 @@ RapidLayout框架中，包含单个卷积单元的位置信息、整体的布局
    \draw [ultra thick,->,red] (slr0) to [out=180,in=180] (slr1);
  \end{tikzpicture}
 }
- \caption{Full-chip layout for the systolic array accelerator generated from a
-repeating rectangle of size two clock regions high and the full chip wide. After
-one replication we span one SLR region. We place and route this with Vivado,
-export DCP, reimport into RapidWright to clone across SLRs.}
+%  \caption{Full-chip layout for the systolic array accelerator generated from a
+% repeating rectangle of size two clock regions high and the full chip wide. After
+% one replication we span one SLR region. We place and route this with Vivado,
+% export DCP, reimport into RapidWright to clone across SLRs.}
+
+\caption{从最小可重复矩形区域内的布局结果到完整FPGA实现过程示意图。首先，最小可重复
+矩形内的布局结果经过一次复制充满SLR0，RapidLayout对布局结果和逻辑网表同时进行复制。然后RapidLayout调用Vivado完成SLR0
+的布局布线，得到SLR0的完整实现。最后，RapidLayout使用RapidWright API将SLR0的布局结果和布线结果复用到
+SLR1和SLR2，得到完整的FPGA实现。}
  \label{fig:fullchip}
 
 \end{figure}
@@ -649,7 +672,9 @@ export DCP, reimport into RapidWright to clone across SLRs.}
 
 \section{本章小结}
 
-
+本章首先介绍了硬核布局建模为多目标优化问题的方法，明确了问题的优化目标与限制，阐述了本文的创新基因型设计与相应的
+解合法化过程，明确NSGA-II与CMA-ES的算法原理与实现方案，最终介绍了RapidLayout布局框架的工作流，并
+以层层递进的方式举例阐述了脉动阵列的布局实现过程。
 
 
 
