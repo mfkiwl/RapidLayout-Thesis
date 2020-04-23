@@ -8,15 +8,15 @@
 
 \section{神经网络硬件加速}
 
-随着人工智能的兴起，卷积神经网络在计算机视觉领域得到了大规模应用，比如图像分类、物体检测、
-语义分割等诸多子领域。同时，因为卷积神经网络训练和预测中的计算需求和易于并行化的特点，在可编程硬件上实现
+随着人工智能的兴起，卷积神经网络在计算机视觉领域得到了大规模应用，比如图像分类~\cite{szegedy2017inception}、物体检测~\cite{redmon2018yolov3}、
+语义分割~\cite{barkau1996unet}等诸多子领域。同时，因为卷积神经网络训练和预测中的计算需求和易于并行化的特点，在可编程硬件上实现
 神经网络计算架构受到了广泛的研究关注。本节主要介绍两种经典的卷积神经网络加速器设计：
-Line-Buffer型卷积计算单元与脉动阵列。
+Line-Buffer型卷积计算单元~\cite{qiu2016going}与脉动阵列~\cite{nachiket_stc_fpl2019}。
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figure/line-buffer}
-	\caption{Line Buffer型卷积计算单元} 
+	\caption{Line Buffer型卷积计算单元~\cite{qiu2016going}} 
 	\label{fig:conv}
 \end{figure}
 
@@ -33,7 +33,7 @@ Line-Buffer型卷积计算单元的设计并行度为卷积核尺寸，优点是
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figure/array}
-	\caption{脉动阵列卷积计算单元} 
+	\caption{脉动阵列卷积计算单元~\cite{nachiket_stc_fpl2019}} 
 	\label{fig:sys}
 \end{figure}
 
@@ -41,11 +41,11 @@ Line-Buffer型卷积计算单元的设计并行度为卷积核尺寸，优点是
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figure/cascade}
-	\caption{卷积运算单元和矩阵乘法运算单元级联的脉动阵列} 
+	\caption{卷积运算单元和矩阵乘法运算单元级联的脉动阵列~\cite{nachiket_stc_fpl2019}} 
 	\label{fig:cas}
 \end{figure}
 
-图\ref{fig:sys}为Scale and Cascade提出的脉动阵列卷积计算单元架构图。一个卷积计算单元由2个Ultra RAM，8个Block RAM，
+图\ref{fig:sys}为Scale and Cascade~\cite{nachiket_stc_fpl2019}提出的脉动阵列卷积计算单元架构图。一个卷积计算单元由2个Ultra RAM，8个Block RAM，
 18个DSP48构成。其中输入URAM用于存储特征图的两个通道，和一个卷积核的权重。URAM连接着两组乘加计算单元，每一组分别有3个BRAM负责
 移位寄存特征图像素，1个BRAM存储卷积核权重。在乘加计算单元里权重和特征像素不断由BRAM输送给级联的DSP48，在这里计算乘积并将
 结果累加。最后一个DSP输出的值就是一次卷积的计算结果，并由输出端的URAM存储。此设计的并行度为2倍卷积核行数，但特征图像素数据复用更高，
@@ -56,12 +56,12 @@ Line-Buffer型卷积计算单元的设计并行度为卷积核尺寸，优点是
 
 \section{FPGA EDA实现原理}
 
-FPGA设计的EDA实现过程主要分为5个部分：合成(Synthesis)，工艺映射(Technology Mapping)，打包(Packing)，布局(Placement)，布线(Routing)。
+FPGA设计的EDA实现过程主要分为5个部分~\cite{li2017utplacef}：合成(Synthesis)，工艺映射(Technology Mapping)，打包(Packing)，布局(Placement)，布线(Routing)。
 本节分别对每个步骤进行阐述。
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.3\textwidth]{figure/cad}
-	\caption{FPGA设计的EDA实现步骤} 
+	\caption{FPGA设计的EDA实现步骤~\cite{li2017utplacef}} 
 	\label{fig:eda}
 \end{figure}
 \begin{itemize}
@@ -79,13 +79,13 @@ FPGA设计的EDA实现过程主要分为5个部分：合成(Synthesis)，工艺�
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figure/vivado_dcps}
-	\caption{RapidWright FPGA实现框架} 
+	\caption{RapidWright FPGA实现框架~\cite{lavin2018rapidwright}} 
 	\label{fig:rapidwright}
 \end{figure}
 
 \subsection{RapidWright简介}
 
-RapidWright是Xilinx Research Lab 开发的开源Java FPGA自定义框架，能够修改基于 Xilinx FPGA 和 SoC 的逻辑网表设计
+RapidWright~\cite{lavin2018rapidwright}是Xilinx Research Lab 开发的开源Java FPGA自定义框架，能够修改基于 Xilinx FPGA 和 SoC 的逻辑网表设计
 与物理实现修改，它提供了 Xilinx Vivado Design Suite 许多功能的补充，其中包括：
 \begin{itemize}
     \item 快速加载和浏览Vivado支持的Xilinx设备物理模型；
@@ -116,7 +116,7 @@ RapidWright提供了一种面向对象的FPGA实现方法，实现的所有方�
 FPGA(Field Programmable Gate Array，场可编程门阵列) 是一类可以通过编程方法修改其内部逻辑的芯片。早期的FPGA大多包含由
 SRAM实现的可编程逻辑模块和IO模块，每个可编程逻辑模块中包含查找表和寄存器。而现代FPGA除了可编程模块加入了多种新型IP核，比如
 片上分布式RAM，DSP模块，PCIe模块等等。本节首先介绍FPGA的几种基本组成元件，然后以Xilinx FPGA为例，介绍现代异构FPGA的
-组成结构，并详细介绍UltraScale+系列配备的IP硬核。
+组成结构，并详细介绍UltraScale+系列配备的IP硬核~\cite{ug903}。
 
 \subsection{FPGA的基本组成元件}
 
@@ -128,7 +128,7 @@ LUT（查找表）是FPGA可编程逻辑的核心，也是计算的基本组成�
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{figure/luts}
-	\caption{FPGA的基本组成元件：查找表LUT与真值表的关系} 
+	\caption{FPGA的基本组成元件：查找表LUT与真值表的关系~\cite{lavin2018rapidwright}} 
 	\label{fig:lut}
 \end{figure}
 
@@ -170,7 +170,7 @@ Carry Chain 是FPGA的基本组成元件之一，通常一组LUT会配备一个C
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figure/hierarchy}
-	\caption{Xilinx FPGA 可编程硬件组成结构} 
+	\caption{Xilinx FPGA 可编程硬件组成结构~\cite{lavin2018rapidwright}} 
 	\label{fig:hierarchy}
 \end{figure}
 
@@ -203,7 +203,7 @@ FSR就是通常所说的时钟域，其中包含多个Tile，各自有独立的�
 
 SLR也称为超逻辑域，其出现始于FPGA 2.5D Packaging 工艺的发展。现代大型FPGA一般包含多个硅片，每一个单独的硅片就是
 一个SLR，可看作一个完整的独立芯片。SLR一般包含多个时钟域，其边缘与其他SLR的连接通过专用的跨逻辑域通路，并有专用的
-Tile辅助跨逻辑连接，叫做 Laguna Tiles.
+Tile辅助跨逻辑连接，叫做 Laguna Tiles~\cite{ug903}.
 
 
 {\bf Device}
@@ -223,7 +223,7 @@ Xilinx UltraScale+ 系列FPGA集成了上千个IP硬核(hard block)，这些硬�
 \begin{figure}[h]
     \centering
 	\includegraphics[width=\textwidth]{figure/hardblocks}
-	\caption{Xilinx UltraScale+ IP硬核介绍} 
+	\caption{Xilinx UltraScale+ IP硬核介绍~\cite{nachiket_stc_fpl2019}} 
 	\label{fig:hardblocks}
 \end{figure}
 
@@ -252,11 +252,11 @@ Xilinx UltraScale+ 系列FPGA集成了上千个IP硬核(hard block)，这些硬�
 
 FPGA布局问题是将打包后的逻辑网表中的元件对应到FPGA物理位置的过程，其目标是寻找对应关系的同时优化特定目标，比如
 设计可布线性，关键路径长度或阻塞程度。
-FPGA布局已被证实为NP-complete问题，且FPGA的布局结果直接影响设计是否可布线以及实现后的时序表现，因此布局是
+FPGA布局已被证实为NP-complete问题~\cite{panchal2015solving}，且FPGA的布局结果直接影响设计是否可布线以及实现后的时序表现，因此布局是
 EDA问题中的重点和难点。本节通过总结已有的和近年发展的FPGA布局方法从整体角度阐述FPGA布局算法原理。
 
 
-FPGA布局算法可基本分为四类：基于模拟退火的布局算法，进化类算法，Min-Cut Partition，解析类布局算法。
+FPGA布局算法可基本分为四类：基于模拟退火的布局算法~\cite{eguro_retime,kirkpatrick1983optimization}，进化类算法~\cite{yang2005fpga,venkatraman2000evolutionary,jamieson2013supergenes,wang2009ant}，Min-Cut Partition~\cite{maidee2005timing}，解析类布局算法\cite{gort_analytical-placement_fpl2012,abuowaimer2018gplace3}。
 
 \subsection{模拟退火}
 模拟退火法出现较早且应用广泛，经过随机初始化的布局在温度函数的控制下逐渐降低接受随机变化的概率，使系统冷却，从而得到最优布局结果。
@@ -268,7 +268,7 @@ FPGA布局算法可基本分为四类：基于模拟退火的布局算法，进�
 
 
 \subsection{进化算法}
-进化算法是一类受到达尔文进化论启发的优化算法，经典的例子包括遗传算法、蚁群算法、粒子群算法等等。进化算法作为一种
+进化算法是一类受到达尔文进化论启发的优化算法，经典的例子包括遗传算法、蚁群算法、粒子群算法等等~\cite{DBLP:journals/corr/abs-1906-08870}。进化算法作为一种
 迭代优化方法其核心思想在于使用基因型编码可行解，定义目标函数（或称为适应度函数），然后通过基因型的交叉、变异在迭代过程中
 产生新的可行解，然后通过目标函数将适应度低的基因型或个体淘汰，以此使种群趋向于目标函数的方向进化。
 一般认为，应用于FPGA布局的进化算法表现不如退火，其原因在于交叉算子对解空间探索性能较差。但进化算法基于种群进化的思想
@@ -284,7 +284,7 @@ Min-Cut法将逻辑网表不断按区域划分，直到网表内元件完全展�
 近年来获得较大发展的方法是解析布局法，其将FPGA布局优化问题建模为
 方程系统，并使用求解算法解得布局结果。常用的求解算法如QP法(Quadratic Programming)，通过求梯度求解目标函数的最小值。
 解析布局算法可扩展性强，结果质量较高，但需要代价较大的布局结果合法化过程，可并行度较差。
-目前广泛应用的Vivado Design Suite中使用的布局算法为多目标解析算法，优化目标为时钟频率，阻塞和线长。
+目前广泛应用的Vivado Design Suite中使用的布局算法为多目标解析算法，优化目标为时钟频率，阻塞和线长~\cite{wp416-vivado-user-guide}。
 
 
 

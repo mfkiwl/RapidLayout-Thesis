@@ -22,17 +22,17 @@ FPGA设计的实现带来了挑战。
 许多学者的研究重点。
 
 % 布局方法
-FPGA设计的实现一般包括6个步骤：合成(Synthesis)，工艺映射(Technology Mapping)，打包(Clustering/Packing)，布局(Placement)，
+FPGA设计的实现一般包括6个步骤\cite{li2017utplacef}：合成(Synthesis)，工艺映射(Technology Mapping)，打包(Clustering/Packing)，布局(Placement)，
 布线（Routing），生成比特流(Generate Bit-Stream)。FPGA布局是把打包后的网表对应到板上的物理元件位置上，布局的结果直接影响设计
 能否成功布线与设计的时序表现，而在实现的步骤中布局又是耗时较大的一步。因此，对FPGA布局的优化是提高CAD工具性能的关键。
-已有的应用布局方法主要分为三类，基于模拟退火(Simulated Annealing)的布局算法、解析布局算法(Analytical Placement)、和Min-Cut法。
+已有的主流应用布局方法主要分为三类，基于模拟退火(Simulated Annealing)的布局算法\cite{kirkpatrick1983optimization}、解析布局算法(Analytical Placement)\cite{gort2012analytical}、和Min-Cut法\cite{maidee2003fast}。
 模拟退火法出现较早且应用广泛，经过随机初始化的布局在温度函数的控制下逐渐降低接受随机变化的概率，使系统冷却，从而得到最优布局结果。
 退火法得到的布局结果质量高，但所需迭代优化时间较长，并行度和可扩展性较差。Min-Cut法将逻辑网表不断按区域划分，直到网表内元件完全展开
 和FPGA物理位置对应，适用于小型布局问题，且局部优化容易收敛至局部最优。近年来获得较大发展的方法是解析布局法，其将FPGA布局优化问题建模为
 方程系统，并使用求解算法解得布局结果。解析布局算法可扩展性强，结果质量较高，但需要代价较大的布局结果合法化过程，可并行度较差。
 
-近年强化学习和神经网络架构搜索算法的发展促进了进化算法的兴起，诸如经典的多目标优化方法NSGA-II（Non-Dominated Sorting Genetic Algorithm, 
-非支配排序遗传算法）和 State-of-the-Art 非求导优化算法CMA-ES（Covariance Matrix Adapted Evolution Strategy, 协方差矩阵适应进化策略）。
+近年强化学习\cite{li2019deep}和神经网络架构搜索算法\cite{lu2019nsga,nn2016cma}的发展促进了进化算法的兴起，诸如经典的多目标优化方法NSGA-II\cite{deb2002fast}（Non-Dominated Sorting Genetic Algorithm, 
+非支配排序遗传算法）和 State-of-the-Art 非求导优化算法CMA-ES\cite{cmapaper}（Covariance Matrix Adapted Evolution Strategy, 协方差矩阵适应进化策略）。
 这些进化算法在许多多目标、黑箱、非平滑或非连续域优化问题上取得了领先的表现，而且进化算法具有良好的可拓展性，
 其基于种群进化的优化方式天然具备适应并行计算的优势。因此，将新的进化算法应用于FPGA布局优化问题有希望解决大型异构FPGA的布局困难问题，
 具有极大的可行性与研究意义。
@@ -52,30 +52,30 @@ EDA工具提出了更高的要求，吸引了国内外学者的研究兴趣。�
 脉动阵列的提出解决了硬件加速器随着规模增大速度降低的问题。脉动阵列的结构是将高速计算单元以2D的方式排列并
 级联形成网络，数据从一端按节拍连续输入，经过运算的结果则从另一端按照节拍连续输出。
 Google TPU 首先将脉动阵列式的矩阵乘法加速器用于机器学习计算的加速。脉动阵列不仅限于
-矩阵乘法，也可以用于卷积神经网络的计算加速，如CLP，Cascades，和 Xilinx SuperTile。
+矩阵乘法，也可以用于卷积神经网络的计算加速，如CLP~\cite{yongming_systolic-clp_isca2017,yongming_systolic-clp_fpl2016}，Cascades~\cite{nachiket_stc_fpl2019}，和 Xilinx SuperTile~\cite{supertile_fpga19, supertile_fpl17}。
 
-然而实现高利用率的设计同时保持高运算速度十分具有挑战性。CLP基于Virtex-7系列FPGA实现，
-且没有使用片上DSP计算资源，其时钟频率仅为100-170 MHz。Xilinx SuperTile 在
+然而实现高利用率的设计同时保持高运算速度十分具有挑战性。CLP~\cite{yongming_systolic-clp_isca2017,yongming_systolic-clp_fpl2016}基于Virtex-7系列FPGA实现，
+且没有使用片上DSP计算资源，其时钟频率仅为100-170 MHz。Xilinx SuperTile~\cite{supertile_fpga19, supertile_fpl17} 在
 UltraScale+ FPGA上实现，时钟频率可以达到750 MHz，但与此同时放弃了URAM的带宽，而且
-浪费了50\%的片上DSP资源。Cascades 同样基于UltraScale+ FPGA 实现，其时钟频率达到
+浪费了50\%的片上DSP资源。Cascades~\cite{nachiket_stc_fpl2019} 同样基于UltraScale+ FPGA 实现，其时钟频率达到
 650 MHz，DSP、片上RAM的利用率均达到95\%，而且没有限制URAM的带宽。但是，高利用率
-的脉动阵列设计带来了布局上的困难：Cascade设计无法依赖Vivado内置的布局引擎产生
+的脉动阵列设计带来了布局上的困难：Cascade~\cite{nachiket_stc_fpl2019}设计无法依赖Vivado内置的布局引擎产生
 可布线的结果，而必须人工设计480个卷积单元内部硬核的布局位置，才可以成功布局，并达到URAM上限的650 MHz
 时钟频率。
 
 \subsection{基于进化算法的FPGA布局方法}
 
-将进化算法应用到FPGA布局优化曾有过许多尝试，但很少获得成功。最早的尝试由 Venkatraman 与 Patnaik 提出，
+将进化算法应用到FPGA布局优化曾有过许多尝试，但很少获得成功。最早的尝试由 Venkatraman 与 Patnaik~\cite{venkatraman2000evolutionary} 提出，
 这项工作将FPGA上的元件位置二维坐标直接编码为遗传算法的基因型，并且使用基于关键路径长度估计和空间利用率的
 目标函数进行优化。这项工作为FPGA布局方法提供了新思路，但并未取得比传统的模拟退火法更优的布局结果。
-近年来，P. Jamieson 指出遗传算法无法取得与模拟退火布局算法相当的结果质量是由于crossover算子在
-探索解空间的能力上有限。因此提出了Supergenes作为一种改进的遗传算法。这项工作引入了分组算子克服
-crossover算子的缺点，并产生了和退火相当质量的布局结果。Praveen T. 对遗传算法进行了平行化，并将
+近年来，P. Jamieson~\cite{jamieson2010revisiting, jamieson2011exploring} 指出遗传算法无法取得与模拟退火布局算法相当的结果质量是由于crossover算子在
+探索解空间的能力上有限。因此提出了Supergenes~\cite{jamieson2013supergenes}作为一种改进的遗传算法。这项工作引入了分组算子克服
+crossover算子的缺点，并产生了和退火相当质量的布局结果。Praveen T. 对遗传算法进行了平行化~\cite{praveen2016multi}，并将
 遗传算法和退火布局方法结合，利用退火法提高布局结果的质量，用平行化的遗传算法对布局搜索过程加速。
 
 总体而言，将进化算法应用于FPGA布局经历过较多尝试，但并未获得相比模拟退火法更优的性能。然而，近年来
-强化学习和神经网络架构搜索的发展推动了新的进化算法发展：NSGA-II在强化学习的解空间探索上展示了良好性能，
-CMA-ES作为一种无须求导的优化方法在架构搜索上得到了应用。并且进化算法基于种群的优化思想具有对平行计算加速
+强化学习和神经网络架构搜索的发展推动了新的进化算法发展：NSGA-II在强化学习的解空间探索上展示了良好性能\cite{li2019deep,lu2019nsga}，
+CMA-ES作为一种无须求导的优化方法在架构搜索上得到了应用\cite{nn2016cma}。并且进化算法基于种群的优化思想具有对平行计算加速
 的良好支持，且不需要高代价的解合法化过程。因此，将更先进的进化算法应用于FPGA布局问题具有较大研究意义。
 
 

@@ -40,8 +40,8 @@ DSP48，Block RAM 和 Ultra RAM 三种计算存储硬核资源。RapidLayout FPG
 
 \section{对比布局算法}
 % 几个对比算法，近似处理的做法
-本文选取了多个布局算法作为对比实验，包括：（1）模拟退火算法； （2）基于模拟退火的标准FPGA实现工具Versatile Place and Route；
-(3) State-of-the-art 解析布局算法 UTPlaceF； （4）单目标遗传算法； （5）RapidWright内部布局引擎（基于退火）；
+本文选取了多个布局算法作为对比实验，包括：（1）模拟退火算法； （2）基于模拟退火的标准FPGA实现工具Versatile Place and Route~\cite{vtr2014}；
+(3) State-of-the-art 解析布局算法 UTPlaceF~\cite{li2017utplacef}； （4）单目标遗传算法； （5）RapidWright内部布局引擎（基于退火~\cite{lavin2018rapidwright}；
 （6）Vivado解析布局引擎。本节阐述以上对比实验的原理简介与实现方法。
 
 \subsection{模拟退火算法 Simulated Annealing}
@@ -57,7 +57,7 @@ DSP48，Block RAM 和 Ultra RAM 三种计算存储硬核资源。RapidLayout FPG
 
 \subsection{Versatile Place and Route}
 
-Versatile Place and Route (VPR) 是多伦多大学提出的Verilog-to-Route(VTR) FPGA实现框架的布局布线工具，是学术界最常用的
+Versatile Place and Route (VPR) 是多伦多大学提出的Verilog-to-Route(VTR)~\cite{vtr2014} FPGA实现框架的布局布线工具，是学术界最常用的
 标准对比基线。VPR基于模拟退火算法，提出了一种线性阻塞(linear congestion)目标函数改进，其形式如式\ref{eq:vpr}确定。
 
 \begin{equation}
@@ -74,7 +74,7 @@ Cost = \sum_{n=1}^{N_{nets}} q(n) [ \frac{bb_x(n)}{C_{av,x}(n)} + \frac{bb_y(n)}
 
 \subsection{UTPlaceF 解析算法布局工具}
 
-UTPlaceF是目前最先进的解析布局算法工具，由德克萨斯大学奥斯汀分校提出，并于ISPD2016 Routing-Aware Placement Contest获得一等奖。
+UTPlaceF是目前最先进的解析布局算法工具，由德克萨斯大学奥斯汀分校~\cite{li2017utplacef}提出，并于ISPD2016 Routing-Aware Placement Contest获得一等奖。
 UTPlaceF使用HPWL(Half-Parameter Wirelength)作为目标函数，其形式为：
 $$ HPWL(x,y) = \sum_{e \in E} {max_{i,j \in e} |x_i-x_j| + max_{i,j \in e} |y_i-y_j|} $$
 其中$E$为全部信号线，$x, y$为信号线连接的全部计算单元(cell)。UTPlaceF使用欧氏距离平方对HPWL近似从而使其可导，
@@ -82,20 +82,20 @@ $$ HPWL(x,y) = \sum_{e \in E} {max_{i,j \in e} |x_i-x_j| + max_{i,j \in e} |y_i-
 UTPlaceF 使用 Extended BookShelf Format 作为架构和逻辑网表的定义格式，本文同样开发了网表和布局结果的转换工具，
 与RapidLayout集成，自动调用。
 
-{\bf 架构近似：} 由于UTPlaceF仅面向UltraScale架构，其架构定义不包括Ultra RAM硬核。因此，本文根据硬核大小做出如下近似：
+{\bf 架构近似：} 由于UTPlaceF仅面向UltraScale架构~\cite{li2017utplacef}，其架构定义不包括Ultra RAM硬核。因此，本文根据硬核大小做出如下近似：
 UltraScale+ RAMB18 $\rightarrow$ UltraScale DSP48, 
 UltraScale+ URAM288 $\rightarrow$ UltraScale RAMB36，
 并保持硬核数量、列分布与UltraScale+ VU11P FPGA相同。
 
 \subsection{遗传算法 Genetic Algorithm}
 
-遗传算法(Genetic Algorithm, GA)是最基本的进化算法。本文采用Opt4J Java 优化框架实现了单目标的GA硬核布局引擎。遗传算法采用
+遗传算法(Genetic Algorithm, GA)是最基本的进化算法。本文采用Opt4J~\cite{opt4jpaper} Java 优化框架实现了单目标的GA硬核布局引擎。遗传算法采用
 最基本的交叉(Cross-over)和变异(Mutation)产生新的可行解，但仅支持单一目标函数。本文采用与NSGA-II相同的问题建模，目标函数为
 卷积计算单元最大限制框尺寸，基因型设计与参数设置和NSGA-II保持相同。本实验的目的在于说明多目标优化对布局结果质量提升的影响。
 
 \subsection{RapidWright布局引擎}
 
-RapidWright支持基于Modular Design的物理实现方式，可以将一个卷积运算单元包装为一个Module，使用内置的退火引擎进行布局。
+RapidWright支持基于Modular Design~\cite{lavin2018rapidwright}的实现方式，可以将一个卷积运算单元包装为一个Module，使用内置的退火引擎进行布局。
 但实际试验结果如图\ref{fig:rapidwright_baseline}所示，无法在VU11P FPGA上完成对480个卷积运算单元的布局。失败的原因在于：
 RapidWright首先对Module分析，得到整个FPGA上所有的可布局位置。但由于硬核的列分布不规律，RapidWright仅能发现同列
 的可布局位置。在图\ref{fig:rapidwright_baseline}中，RapidWright仅发现了12个可布局位置，因此其退火引擎无法
@@ -162,9 +162,9 @@ Vivado的布局实验再次说明了高硬核利用率的设计和不规则的�
         \hline                                         
         Vivado Design Suite	&  2018.3 \\
         \hline
-        Opt4J  &  3.1.4 2015-release \\
+        Opt4J~\cite{opt4jpaper}  &  3.1.4 2015-release \\
         \hline
-        Apache Commons Math Optimization Library & 3.4 \\
+        Apache Commons Math Optimization Library~\cite{math2013commons} & 3.4 \\
         \bottomrule[2pt]
 	\end{tabular}
 \end{table}

@@ -190,7 +190,7 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 \end{itemize}
 
 以上说明的三种子基因型分别对应着布局问题的三个子问题，在图\ref{fig:genotype}中，我们对基因型设计进行了可视化。这三种子基因型
-是紧密相关、互相依赖的，因此无法拆解为三个单独的问题分别优化。我们针对这一特性设计了一种 Composite Genotype 来适应子问题的
+是紧密相关、互相依赖的，因此无法拆解为三个单独的问题分别优化。我们针对这一特性应用 Composite Genotype~\cite{opt4jpaper} 来适应子问题的
 依赖关系，具体来说，三个子问题分别编码，在优化过程中分别更新，彼此之间不相互影响，但是在计算基因型的适应度函数 (Fitness Function)
 的时候，三个子基因型一同解码计算。
 
@@ -313,7 +313,7 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figure/NSGA-II}
-	\caption{NSGA-II的优化过程：首先亲代通过交叉变异产生同等数量的子代，然后通过Non-dominated Sorting将种群个体分为
+	\caption{NSGA-II的优化过程~\cite{deb2002fast}：首先亲代通过交叉变异产生同等数量的子代，然后通过Non-dominated Sorting将种群个体分为
 	多个帕累托前端（Pareto-Front)，并淘汰一部分劣势个体。如果同一个帕累托前端内的个体需要淘汰，则通过Crowd-Distance Sorting
 	保留具有代表性的子代，最终淘汰一半种产生下一代亲代。} 
 	\label{fig:NSGA-II}
