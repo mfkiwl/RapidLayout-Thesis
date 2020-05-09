@@ -1,4 +1,4 @@
-\chapter{实验分析与结论}
+\chapter{实验结果与分析}
 
 前面章节详细介绍了本文的进化算法硬核布局的原理与实现方式，并介绍了RapidLayout FPGA实现框架的
 原理与工作流程。本章通过对比实验设计研究进化算法布局与模拟退火、解析布局等
@@ -58,14 +58,14 @@ DSP48，Block RAM 和 Ultra RAM 三种计算存储硬核资源。RapidLayout FPG
 \subsection{Versatile Place and Route}
 
 Versatile Place and Route (VPR) 是多伦多大学提出的Verilog-to-Route(VTR)~\cite{vtr2014} FPGA实现框架的布局布线工具，是学术界最常用的
-标准对比基线。VPR基于模拟退火算法，提出了一种线性阻塞(linear congestion)目标函数改进，其形式如式\ref{eq:vpr}确定。
+标准对比基线。VPR基于模拟退火算法，提出了一种线性阻塞(linear congestion)目标函数改进，其形式如式（\ref{eq:vpr}）确定。
 
 \begin{equation}
 Cost = \sum_{n=1}^{N_{nets}} q(n) [ \frac{bb_x(n)}{C_{av,x}(n)} + \frac{bb_y(n)}{C_{av,y}(n)} ] 
 \label{eq:vpr}
 \end{equation}
 
-其中求和是对于所有的信号线，$bb_x$ 和 $bb_y$ 代表每个信号线限制框的宽和高，$q(n)$ 是对实际线长估计的补偿值，$C_{av,x}$ 和 $C_{av,y}$
+其中求和是对于所有的信号线，$bb_x$ 和 $bb_y$ 代表每个信号线边界框的宽和高，$q(n)$ 是对实际线长估计的补偿值，$C_{av,x}$ 和 $C_{av,y}$
 是横纵方向平均的布线通道容量。本文采用了最新的VPR 7.0 Official Release 二进制文件作为对比。由于VPR使用的架构与网表格式与RapidWright
 不同，本文基于Python开发了以下工具：（1）将Xilinx UltraScale+ VU11P 架构转化为 \texttt{architecture.xml} 架构信息转化工具；
 （2）将本文使用的脉动阵列网表转化为 Berkeley Logic Interchange Format 的工具，生成 \texttt{conv\_model.blif} 文件；
@@ -76,7 +76,10 @@ Cost = \sum_{n=1}^{N_{nets}} q(n) [ \frac{bb_x(n)}{C_{av,x}(n)} + \frac{bb_y(n)}
 
 UTPlaceF是目前最先进的解析布局算法工具，由德克萨斯大学奥斯汀分校~\cite{li2017utplacef}提出，并于ISPD2016 Routing-Aware Placement Contest获得一等奖。
 UTPlaceF使用HPWL(Half-Parameter Wirelength)作为目标函数，其形式为：
-$$ HPWL(x,y) = \sum_{e \in E} {max_{i,j \in e} |x_i-x_j| + max_{i,j \in e} |y_i-y_j|} $$
+\begin{equation}
+ HPWL(x,y) = \sum_{e \in E} {max_{i,j \in e} |x_i-x_j| + max_{i,j \in e} |y_i-y_j|} 
+\end{equation}
+
 其中$E$为全部信号线，$x, y$为信号线连接的全部计算单元(cell)。UTPlaceF使用欧氏距离平方对HPWL近似从而使其可导，
 然后使用Quadratic Programming求解布局结果。本文使用UTPlaceF TCAD Version 公开的二进制文件进行对比实验。由于
 UTPlaceF 使用 Extended BookShelf Format 作为架构和逻辑网表的定义格式，本文同样开发了网表和布局结果的转换工具，
@@ -91,7 +94,7 @@ UltraScale+ URAM288 $\rightarrow$ UltraScale RAMB36，
 
 遗传算法(Genetic Algorithm, GA)是最基本的进化算法。本文采用Opt4J~\cite{opt4jpaper} Java 优化框架实现了单目标的GA硬核布局引擎。遗传算法采用
 最基本的交叉(Cross-over)和变异(Mutation)产生新的可行解，但仅支持单一目标函数。本文采用与NSGA-II相同的问题建模，目标函数为
-卷积计算单元最大限制框尺寸，基因型设计与参数设置和NSGA-II保持相同。本实验的目的在于说明多目标优化对布局结果质量提升的影响。
+卷积计算单元最大边界框尺寸，基因型设计与参数设置和NSGA-II保持相同。本实验的目的在于说明多目标优化对布局结果质量提升的影响。
 
 \subsection{RapidWright布局引擎}
 
@@ -164,7 +167,7 @@ Vivado的布局实验再次说明了高硬核利用率的设计和不规则的�
         \hline
         Opt4J~\cite{opt4jpaper}  &  3.1.4 2015-release \\
         \hline
-        Apache Commons Math Optimization Library~\cite{math2013commons} & 3.4 \\
+        Apache Commons Math Optimization Library~\cite{apache} & 3.4 \\
         \bottomrule[2pt]
 	\end{tabular}
 \end{table}
@@ -188,7 +191,7 @@ Math Optimization Library Java数学库实现。辅助性套件中，第\ref{sec
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{figure/Annealing-Tuning}
+	\includegraphics[width=0.8\textwidth]{figure/Annealing-Tuning}
 	\caption{模拟退火布局算法在指数、双曲、线性三种类型冷却进度表条件下的目标函数收敛进程} 
 	\label{fig:annealing-tune}
 \end{figure}
@@ -282,6 +285,9 @@ Manual表示手工布局结果，也就是人工设计480个卷积计算单元�
 
 \subsection{性能对比}
 
+本节对所有优化算法采用了设置随机种子的初始化，每种优化算法运行50次，随机选取其中的10次结果进行完整实现（布局、布线、Vivado报告时钟频率）
+对比时钟频率结果。
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{figure/objective-runtime}
@@ -291,16 +297,16 @@ Manual表示手工布局结果，也就是人工设计480个卷积计算单元�
 
 
 % table of performance comparison
-\begin{table*}[t]
+\begin{table*}[h]
 % 	\caption{Runtime(avg), Wirelength(avg), Max BBox(avg), Pipelining
 %   Registers(min), and Frequency(avg) for all methods. NSGA-II shows reduced
 % genotype as well. Speeups and QoR improvements wins by Evolutionary algorithms
 % also reported in \textcolor{red}{red}$\rightarrow$NSGA-II and \textcolor{olive}{green}$\rightarrow$CMA-ES 
 % for each competitor algorithm (SA, GA, UTPlaceF, VPR, Manual).}
     
-    \caption{平均运行时间，平均线长，平均最大限制框尺寸，达到650MHz最少所需流水线寄存器数目，以及平均时钟频率对比。
+    \caption{平均运行时间，平均线长，平均最大边界框尺寸，达到650MHz最少所需流水线寄存器数目，以及平均时钟频率对比。
     左侧为本文提出的NSGA-II, NSGA-II Reduced, CMA-ES，右侧为对比算法。与各个对比算法相比每个指标的提升倍数在
-    括号内标出，其中\textcolor{red}{red}$\rightarrow$NSGA-II，\textcolor{olive}{green}$\rightarrow$CMA-ES}
+    括号内标出，其中\textcolor{red}{红色}$\rightarrow$NSGA-II，\textcolor{olive}{绿色}$\rightarrow$CMA-ES}
 	\label{table:comparison}
   \centering
   \begin{adjustbox}{width=1.1\textwidth,center}
@@ -319,17 +325,14 @@ Manual表示手工布局结果，也就是人工设计480个卷积计算单元�
 \end{adjustbox}
 \end{table*}
 
-本节对所有优化算法采用了设置随机种子的初始化，每种优化算法运行50次，随机选取其中的10次结果进行完整实现（布局、布线、Vivado报告时钟频率）
-对比时钟频率结果。
-
-图\ref{fig:objective}展示了所有自动布局方法的运行时间，$wirelength^2$, 最大限制框尺寸，二者相乘$wirelength^2 \times BboxSize$，
+图\ref{fig:objective}展示了所有自动布局方法的运行时间，$wirelength^2$, 最大边界框尺寸，二者相乘$wirelength^2 \times BboxSize$，
 以及Vivado timing report的时钟频率对比。表\ref{table:comparison}列出了图中内容的详细信息，以及进化算法相对对比实验各方面性能提高的
 倍数。由性能对比的结果可以清晰得出以下几点结论：
 
 \begin{itemize}
-    \item NSGA-II比退火算法快大约2.7倍，同时可以得到小14.7\%的最大限制框尺寸，但是牺牲了大约12.9\%的线长。然而，在时钟频率一项
+    \item NSGA-II比退火算法快大约2.7倍，同时可以得到小14.7\%的最大边界框尺寸，但是牺牲了大约12.9\%的线长。然而，在时钟频率一项
     NSGA-II仍然取得了优于退火的表现，这是由于相比退火的结果而言NSGA-II的优化结果更加稳定。
-    \item CMA-ES 大约比退火快 {\bf 30倍}。尽管CMA-ES得到的最大限制框尺寸和线长相比退火的结果要差($\approx41$\%, $\approx16$\%)，
+    \item CMA-ES 大约比退火快 {\bf 30倍}。尽管CMA-ES得到的最大边界框尺寸和线长相比退火的结果要差($\approx41$\%, $\approx16$\%)，
     但CMA-ES仍然取得了与退火相当甚至更高的平均时钟频率(711 MHz)。
     \item NSGA-II Reduced 这一精简后的NSGA算法取得了相比退火快5倍的运行速度和相比完整NSGA-II快大约2倍的速度，但仅仅损失了2.8\%的
     时钟频率(688 MHz)且仍然高于URAM限制的650MHz最高运行频率。
@@ -367,7 +370,7 @@ Manual表示手工布局结果，也就是人工设计480个卷积计算单元�
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.8\textwidth]{figure/frequency_depth}
+	\includegraphics[width=0.7\textwidth]{figure/frequency_depth}
 	\caption{六种布局方法时钟频率随流水线级数的变化} 
 	\label{fig:freq_depth}
 \end{figure}
@@ -420,10 +423,11 @@ RapidLayout 的SLR复制功能使得大型FPGA的布局布线时间不随资源�
 导致运行时间相应增大。从表\ref{table:port}的结果可以发现，从VU3P到VU13P，FPGA可容纳卷积计算单元的数目由
 123增大到640，也就是增加了5.2倍；而其实现时间仅有46分钟增加到了69分钟，仅增大了1.5倍。
 
+\newpage
 
 \subsection{布局结果展示}
 
-\begin{figure}[t]
+\begin{figure}[h]
 	\centering
 	\subfloat[Vivado内置解析布局引擎结果，因阻塞严重无法完成布线]{
 		\includegraphics[width=0.3\textwidth, height=0.5\textwidth]{figure/vivado-placed.png}
@@ -449,7 +453,7 @@ RapidLayout 的SLR复制功能使得大型FPGA的布局布线时间不随资源�
 其次，本章设计了多种可视化方法展示与state-of-the-art方法
 的性能、收敛过程对比。验证了多目标进化算法在布局任务上相对其他方法的
 优势：相对退火算法3--30倍的搜索时间加速，比最先进解析布局方法更小的
-限制框尺寸与线长，相比手工布局节省6\%-16\%的流水寄存器等。
+边界框尺寸与线长，相比手工布局节省6\%-16\%的流水寄存器等。
 本章详细讨论了流水线级数对时钟频率的影响，从结果中体现出进化算法的另一个优势：
 仅需较少的流水线级数即可达到700~MHz以上的超高时钟频率。
 最后，本章评估RapidLayout的迁移学习性能并展示布局结果，体现了

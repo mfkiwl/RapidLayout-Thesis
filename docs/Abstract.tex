@@ -7,15 +7,26 @@
 \cabstract{
 	% 摘要内容应概括地反映出本论文的主要内容，主要说明本论文的研究目的、内容、方法、成果和结论。要突出本论文的创造性成果或新见解，不要与引言相混淆。语言力求精练、准确，以300—500字为宜。
 	% 要开始一个新的段落，在LaTex源文件里面就是增加一个空行。
+
+	% 背景
 	现代高端FPGA拥有高计算密集度、丰富的异构硬核资源和专用的高速布线网络，为数字信号处理任务提供近似ASIC的计算性能。近年来，在高性能FPGA上实现大规模
-	高速神经网络加速器在学术界和工业界获得了极大的关注，但此类大规模设计在实现过程中面临着布局和布线的难题。对于高硬核利用率的脉动阵列卷积神经
-	网络加速器，本文提出一种基于进化算法的快速硬核布局方法，在运行时间、线长、流水线寄存器消耗成本、和时钟频率方面超越常用的退火算法和目前最先进的
-	解析算法。本文主要有四大创新点，其一是利用Xilinx UltraScale+ FPGA的RAM与DSP硬核设计了高速卷积脉动阵列，用于卷积神经网络的加速；
+	高速神经网络加速器在学术界和工业界获得了极大的关注，但此类大规模设计在实现过程中面临着布局和布线的难题。
+	
+	% 主要研究内容
+	面向高硬核利用率的脉动阵列卷积神经网络加速器设计需求，本文提出一种基于进化算法的快速硬核布局方法，在运行时间、线长、流水线寄存器消耗成本、
+	和时钟频率方面超越常用的退火算法和目前最先进的解析算法。本文主要有四大创新点，其一是利用Xilinx UltraScale+ FPGA的RAM与DSP硬核设计了高速卷积脉动阵列，用于卷积神经网络的加速；
 	其二是将FPGA布局转化为有约束的多目标优化问题，提出使用非支配排序遗传算法(NSGA-II)和协方差矩阵适应进化策略(CMA-ES)解决该问题，并设计了
 	创新的基因型表示; 其三是基于Xilinx RapidWright FPGA定制化框架搭建了自动化、端到端的布局布线工具RapidLayout，其运行时间相比Vivado快
-	5--6倍；其四是设计了不同FPGA间的布局迁移学习方法，加速同一设计部署到不同FPGA的布局过程。在此基础上，本文对布局多个指标进行量化并与
-	Versatile-Place-and-Routing (VPR), UTPlaceF 等最先进布局框架进行对比实验，通过数据结果和过程可视化说明了本文提出的布局方法
-	和实现框架已经达到了领先水平。
+	5--6倍；其四是设计了不同FPGA间的布局迁移学习方法，加速同一设计部署到不同FPGA的布局过程。
+
+	% 结果和展望
+	本文针对上述所提方案，对布局多个指标进行量化并与
+	Versatile-Place-and-Route (VPR), UTPlaceF 等最先进布局框架进行对比实验，通过数据结果和过程可视化说明了本文提出的布局方法
+	和实现框架已经达到了领先水平。RapidLayout的进化布局算法（1）相比VPR的退火引擎最高缩短33\%的运行时间，在线长（Wirelength）和边界框尺寸
+	(Bounding Box Size)分别减小了1.9--2.4$\times$与3.1--4.1$\times$；（2）相比于UTPlaceF
+	解析布局算法，运行时间最高加快9.2倍，同时线长减小了1.8--2.2$\times$，边界框尺寸减小了2--2.7$\times$；
+	本文提出布局结果在不同FPGA之间的迁移学习方法，相比于随机初始化的布局搜索运行时间加快了7-12倍。
+
 
 }
 % 中文关键词(每个关键词之间用“;”分开,最后一个关键词不打标点符号。)
@@ -25,8 +36,11 @@
 
 Modern high-end FPGAs are equipped with abundant heterogeneous computation resources with 
 dedicated routing network, achieving near-ASIC computation performance and clock frequency.
+Large-scale neural-network accelerators on heterogeneous FPGAs have attracted research interest
+from academia and industry. 
+
 Evolutionary algorithms can outperform conventional placement algorithms such as
-simulated annealing, analytical placement as well as manual placement on metrics
+simulated annealing, analytical placement as well as analytical placement on metrics
 such as runtime, wirelength, pipelining cost, and clock frequency when mapping
 FPGA hard block intensive designs such as systolic arrays on Xilinx UltraScale+
 FPGAs.  For certain hard-block intensive, systolic array accelerator designs,
@@ -40,11 +54,13 @@ RapidWright framework.  RapidLayout runs 5--6$\times$ faster than Vivado with
 manual constraints, and eliminates the weeks long effort to manually generate
 placement constraints for the hard blocks. We also perform automated
 post-placement pipelining of the long wires inside each convolution block to
-target 650\,MHz URAM-limited operation. RapidLayout outperforms (1) the
-simulated annealer in VPR by 33\% in runtime, 3.7$\times$ in wirelength, and
-3$\times$ in bounding box size, while also (2) beating the analytical placer
-UTPlaceF by 9.2$\times$ in runtime, 1.7-1.9$\times$ in wirelength, and
-2-3$\times$ in bounding box size. We employ transfer learning from a base FPGA
+target 650\,MHz URAM-limited operation. 
+
+RapidLayout outperforms (1) the
+simulated annealer in VPR by 33\% in runtime, 1.9-2.4$\times$ in wirelength, and
+3.1-4.1$\times$ in bounding box size, while also (2) beating the analytical placer
+UTPlaceF by 9.2$\times$ in runtime, 1.8-2.2$\times$ in wirelength, and
+2-2.7$\times$ in bounding box size. We employ transfer learning from a base FPGA
 device to speed-up placement optimization for similar FPGA devices in the
 UltraScale+ family by 7--12$\times$ than learning the placements from
 scratch. 

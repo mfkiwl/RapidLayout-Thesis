@@ -1,4 +1,4 @@
-\chapter{相关技术方法概述}
+\chapter{神经网络硬件加速相关技术概述}
 
 
 本章就基于进化算法的FPGA脉动阵列布局所涉及的各方面技术进行总结与阐述。
@@ -174,6 +174,8 @@ Carry Chain 是FPGA的基本组成元件之一，通常一组LUT会配备一个C
 	\label{fig:hierarchy}
 \end{figure}
 
+\vspace{-0.3in}
+
 {\bf BEL: Basic Element of Logic}
 
 BEL是Xilinx FPGA 最小的物理计算单元。BEL分为两类，一类是Logic BEL，另一类是Routing BEL。Logic BEL实际上就是包含
@@ -246,7 +248,7 @@ Xilinx UltraScale+ 系列FPGA集成了上千个IP硬核(hard block)，这些硬�
 
 \end{itemize}
 
-
+\vspace{-0.2in}
 
 \section{FPGA布局算法}
 
@@ -254,9 +256,7 @@ FPGA布局问题是将打包后的逻辑网表中的元件对应到FPGA物理位
 设计可布线性，关键路径长度或阻塞程度。
 FPGA布局已被证实为NP-complete问题~\cite{panchal2015solving}，且FPGA的布局结果直接影响设计是否可布线以及实现后的时序表现，因此布局是
 EDA问题中的重点和难点。本节通过总结已有的和近年发展的FPGA布局方法从整体角度阐述FPGA布局算法原理。
-
-
-FPGA布局算法可基本分为四类：基于模拟退火的布局算法~\cite{eguro_retime,kirkpatrick1983optimization}，进化类算法~\cite{yang2005fpga,venkatraman2000evolutionary,jamieson2013supergenes,wang2009ant}，Min-Cut Partition~\cite{maidee2005timing}，解析类布局算法\cite{gort_analytical-placement_fpl2012,abuowaimer2018gplace3}。
+FPGA布局算法可基本分为四类：基于模拟退火的布局算法~\cite{eguro_retime-place_fccm2008,kirkpatrick1983optimization}，进化类算法~\cite{yang2005fpga,venkatraman2000evolutionary,jamieson2013supergenes,wang2009ant}，Min-Cut Partition~\cite{maidee2005timing}，解析类布局算法\cite{gort_analytical-placement_fpl2012,abuowaimer2018gplace3}。
 
 \subsection{模拟退火}
 模拟退火法出现较早且应用广泛，经过随机初始化的布局在温度函数的控制下逐渐降低接受随机变化的概率，使系统冷却，从而得到最优布局结果。
@@ -278,7 +278,10 @@ FPGA布局算法可基本分为四类：基于模拟退火的布局算法~\cite{
 
 \subsection{Min-Cut Partition}
 Min-Cut法将逻辑网表不断按区域划分，直到网表内元件完全展开
-和FPGA物理位置对应，适用于小型布局问题，且局部优化容易收敛至局部最优。
+和FPGA物理位置对应。逻辑网表被不断划分为两个子网表，同时，芯片的物理位置
+也在横向和纵向不断被划分为子区域，每个子网表被指定在一个对应的子区域内。
+这一过程不断重复，直到每个子区域内仅含有一个逻辑元件为止。
+Min-Cut法适用于小型布局问题，且局部优化容易收敛至局部最优~\cite{lee2008fpga}。
 
 \subsection{解析布局算法}
 近年来获得较大发展的方法是解析布局法，其将FPGA布局优化问题建模为

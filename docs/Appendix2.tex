@@ -1,0 +1,75 @@
+
+\chapter{NSGA-II Crowd-Distance 排序}
+\label{sec:crowd}
+
+首先定义Crowd-Comparison Operator:
+
+Crowd-Comparison Operator ($\prec_{n}$)在优化的多个进程中促进结果收敛到一个均匀分布的
+帕累托前端(Pareto-Front)。假设种群中每个个体$i$有两个属性：
+\begin{itemize}
+    \item nondomination rank ($i_{rank}$)
+    \item crowding distance ($i_{distance}$)
+\end{itemize}
+我们可以定义Crowd-Comparion Operator $\prec_{n}$:
+
+$$ i \prec_{n} j \ if\  (i_{rank} < j_{rank})$$
+$$ or\  ( (i_{rank} = j_{rank}) $$
+$$ and\  (i_{distance} > j_{distance}) )$$
+
+也就是说，在两个nondomination rank不同的解中，我们更倾向于rank较低（较好）的一个。
+如果rank相同，则说明两个解在同一个帕累托前端内，此时我们选择拥挤度更低的一个。
+
+\begin{algorithm}
+	\SetKwFunction{Sort}{Sort}
+    
+    $l = |I|$ \tcp*{number of solutions in $I$}
+    \ForEach{i}{set $I[i]_{distance}=0$ \tcp*{Initialize distance}}
+    \ForEach{objective $m$}{
+        $I$ = sort($I$, m) \tcp*{sort using each objective value}
+        $I[1]_{distance}$ = $I[l]_{distance}$ = $\inf$ \tcp*{so that boundary points are always selected}
+        \For{$i = 2$ to $(l-1)$ \tcp*{for all other points}}{
+            $I[i]_{distance} = (I[i]_{distance} + I[i+1].m - I[i-1].m) / (f_m^{max} - f_m^{min})$
+        }
+    }
+	
+	\caption{Crowd-Distance-Assignment($I$)}	
+	\label{algo:crowd-distance-assign}
+\end{algorithm}
+
+
+\begin{algorithm}
+    \SetKwFunction{Fast-Non-Dominated-Sort}{Fast-Non-Dominated-Sort}
+    \SetKwFunction{Crowding-Distance-Assignment}{Crowding-Distance-Assignment}
+    \SetKwFunction{Sort}{Sort}
+    \SetKwFunction{make-new-pop}{make-new-pop}
+
+    $R_t = P_t \cup Q_t$ \tcp*{combine parent and offsprint population}
+
+    $F$ = Fast-Non-Dominated-Sort($R_t$) \tcp*{F is all nondominated fronts of $R_t$}
+
+    $P_{t+1} = \phi$ 
+
+    $i = 1$
+
+    \While{$|P_{t+1}| + |F_i| <= N$ \tcp*{until the parent population is filled}}{
+
+        Crowding-Distance-Assignment($F_i$)
+
+        $P_{t+1}  = P_{t+1} \cup F_i$ \tcp*{include $i$th nondominated front in the parent pop}
+
+        $i = i + 1$ \tcp*{check the next front for inclusion}
+    }
+
+    Sort($F_i$, $\prec_n$) \tcp*{sort in descending order using $\prec_n$}
+
+    $P_{t+1} = P_{t+1} \cup F_i[1 : (N - |P_{t+1}|)]$ \tcp*{choose the first $ (N - |P_{t+1}|)$ elements of $F_i$}
+
+    $Q_t+1$ = make-new-pop($P_{t+1}$) \tcp*{use selection, crossover, and mutation to create a new poputlation}
+
+    $t = t + 1$ \tcp*{increment the generation counter}
+
+    
+
+    \caption{Crowd-Distance-Sorting}
+    \label{algo:crowd-distance-sorting}
+\end{algorithm}

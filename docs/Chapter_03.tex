@@ -1,9 +1,11 @@
 \chapter{基于进化算法的FPGA脉动阵列快速硬核布局方法}
 
 本章详细介绍本文的布局问题建模，NSGA-II和CMA-ES的算法原理，RapidLayout框架流程与实现细节。首先介绍了
-面向 UltraScale+ FPGA 的布局问题建模，明确了问题的优化目标与限制；其次讨论了本文的创新基因型设计与相应的
+面向 UltraScale+ FPGA 的布局问题建模，明确了问题的优化目标与约束；其次讨论了本文的创新基因型设计与相应的
 解合法化过程；然后阐述了NSGA-II与CMA-ES的算法原理与实现方案；最终介绍了RapidLayout布局框架的工作流，并
 以层层递进的方式举例阐述了脉动阵列的布局实现过程。
+
+\vspace{-0.3in}
 
 \section{问题建模}
 
@@ -12,16 +14,15 @@
 
 图\ref{fig:architecture}展示了Xilinx UltraScale+系列VU11P FPGA的整体架构和放大后两个时钟域内部的硬核排布。首先，VU11P FPGA
 由3个超逻辑域(Super Logic Region, SLR)构成，每个超逻辑域内的可编程器件构成和排布完全相同；其次，超逻辑域内包含三种硬核，分别是
-DSP48E2, RAMB18, URAM288，每种硬核按列排布，但不同硬核列之间的分布却是无规则的；同时，三种硬核的大小不同：URAM288最大，RAMB18其次，
+DSP48E2, RAMB18, URAM288，每种硬核按列排布，但不同硬核列之间的分布却是无规则的；同时，三种硬核的尺寸不同：URAM288最大，RAMB18其次，
 而DSP48E2最小。VU11P共有960个URAM288单元、4032个RAMB18单元，9216个DSP48单元，因此硬核的资源是不均衡的。
 硬核列之间排布的不规则、硬核资源的不均衡和硬核大小本身的不同给布局带来了挑战：低质量的排布会造成部分计算单元内部连线过长，
 导致整体设计时钟频率低，且可布线程度(Routability)降低导致布线失败。
 另一方面，由于硬核之间为级联设计了专用的高速布线资源，所以硬核的布局存在约束：
-\begin{itemize}
-    \item 级联的硬核必须按从下(South)到上(North)的顺序排布，且不能跨超逻辑域（SLR）。
-    \item 级联的DSP48E2与URAM288必须映射在相邻的两个Site上。
-    \item 级联的RAMB18必须映射在距离1个Site的相邻两个位置上。
-\end{itemize}
+
+（1）级联的硬核必须按从下(South)到上(North)的顺序排布，且不能跨超逻辑域（SLR）；
+（2）级联的DSP48E2与URAM288必须映射在相邻的两个Site上；
+（3）级联的RAMB18必须映射在距离1个Site的相邻两个位置上；
 
 
 \begin{figure}[h]
@@ -31,24 +32,31 @@ DSP48E2, RAMB18, URAM288，每种硬核按列排布，但不同硬核列之间�
 	\label{fig:architecture}
 \end{figure}
 
+
 FPGA布局的目的一般有两个：将Technology Mapping并分组后的逻辑网表映射到FPGA的物理器件上，保证设计可以布线；另一个目的是在可布线
 的基础上追求小的延迟(delay)，也就是尽可能短的关键路径(Critical Path)和尽可能高的时钟频率。因此，我们将硬核布局问题建立为一个
 有约束的多目标优化问题：
 
+本文将卷积运算单元$k$记为$C_k$，逻辑网表中硬核$i$对应的物理位置横纵坐标分别记为$x_i$，$y_i$，$\Delta{x_{i,j}}$ 与 $\Delta{y_{i,j}}$
+分别表示逻辑网表中硬核$i$与硬核$j$布局后物理位置横坐标与纵坐标的绝对值之差。$XMAX$，$YMAX$ 表示布局范围物理边界，即物理位置横纵坐标的
+最大值。
+
+Minimize: 
 
 \begin{equation} \label{eq:obj1}
-	min \sum_{i,j} ((\Delta{x_{i,j}} + \Delta{y_{i,j}}) \cdot w_{i,j})^2 
+	\sum_{i,j} ((\Delta{x_{i,j}} + \Delta{y_{i,j}}) \cdot w_{i,j})^2 
 \end{equation}
 
 \begin{equation} \label{eq:obj2}
-	 \min (\max_{k} BBoxSize(C_k))
+	 \max_{k} (BBoxSize(C_k))
 \end{equation}
 
 subject to:
 
 % rectangle region bound
 \begin{equation} \label{eq:region}
-  0 \leq x_i,y_i < XMAX,YMAX
+  0 \leq x_i < XMAX ,\ 
+  0 \leq y_i < YMAX
 \end{equation}
 
 
@@ -70,26 +78,26 @@ subject to:
 \end{aligned}
 \end{equation}
 
-在以上的等式中：
+符号说明：
 \begin{itemize}
 	\item $i \in \{ DSP, RAM, URAM \} $ 表示逻辑网表映射到的FPGA上物理硬核单元。
 	\item $C_k$ 表示卷积计算单元 $k$，其中包含2个URAM，18个DSP和8个BRAM。 
 	\item $\Delta{x_{i,j}} + \Delta{y_{i,j}}$ 表示硬核$i$与硬核$j$之间的曼哈顿距离(Manhattan Distance)。
 	\item $w_{i,j}$ 表示硬核$i$与硬核$j$之间距离的权重，这里我们用两个硬核之间连线的数目作为权重。
-	\item $BBoxSize()$ 表示卷积核$C_k$的Bounding Box限制框尺寸，也就是限制框宽与高的和. 
-	\item $x_i$ and $y_i$ 表示硬核$i$的RPM绝对坐标~\cite{ug903}，用于计算两硬核之间的距离和卷积计算单元的限制框尺寸.
+	\item $BBoxSize()$ 表示卷积核$C_k$的Bounding Box边界框尺寸，也就是边界框宽与高的和. 
+	\item $x_i$ and $y_i$ 表示硬核$i$的RPM绝对坐标~\cite{ug903}，用于计算两硬核之间的距离和卷积计算单元的边界框尺寸.
 \end{itemize}
 
 \subsection{布局问题的目标函数}
-我们用线长的平方来表征布局的阻塞性能，如式\ref{eq:obj1}，用最大限制框（Bounding Box）尺寸来表征卷积单元的关键路径（Critical Path）
-如式\ref{eq:obj2}。这两个目标函数是紧密相关的，他们的目的在于同时尝试降低流水线寄存器消耗成本和提高时钟频率。
+我们用线长的平方来表征布局的阻塞性能，如式（\ref{eq:obj1}），用最大边界框（Bounding Box）尺寸来表征卷积单元的关键路径（Critical Path）
+如式（\ref{eq:obj2}）。这两个目标函数是紧密相关的，他们的目的在于同时尝试降低流水线寄存器消耗成本和提高时钟频率。
 在实验中我们观察到，仅优化线长的平方会导致个别卷积运算单元收敛到横向长条形布局结果，导致关键路径出现在控制逻辑，时钟频率低且无法做流水线；
-仅优化最大限制框尺寸，则会导致优化过程非常不稳定，容易收敛到局部最小值。因此，我们选择结合这两个目标函数来限制布局资源消耗同时追求
+仅优化最大边界框尺寸，则会导致优化过程非常不稳定，容易收敛到局部最小值。因此，我们选择结合这两个目标函数来约束布局资源消耗同时追求
 更高的时钟频率。
 
-\subsection{布局问题的限制条件}
-优化器仅需要遵守3个限制条件。（1）式\ref{eq:region}所表示的{\bf 区域限制条件}。它规定了布局优化所使用的硬核必须在FPGA上$XMAX \times YMAX$的
-矩形区域内。（2）式\ref{eq:overlap}所表示的{\bf 非重合条件}。它用来防止优化器将多个逻辑硬核映射到同一个物理位置上。（3）式\ref{eq:cascade}所
+\subsection{布局问题的约束条件}
+优化器仅需要遵守3个约束条件。（1）式（\ref{eq:region}）所表示的{\bf 区域约束条件}。它规定了布局优化所使用的硬核必须在FPGA上$XMAX \times YMAX$的
+矩形区域内。（2）式（\ref{eq:overlap}）所表示的{\bf 非重合条件}。它用来防止优化器将多个逻辑硬核映射到同一个物理位置上。（3）式（\ref{eq:cascade}）所
 表示的{\bf 级联条件}，它规定了级联的硬核必须遵守Xilinx UltraScale+器件的布线规则。对于DSP和URAM，级联的两个硬核必须从下到上映射在两个
 相邻的物理位置上。对于BRAM来说，级联的两个硬核必须从下到上映射到间隔一位的两个相邻物理位置上。BRAM映射规则的特殊性是由BRAM的类型决定的：
 在UltraScale家族的器件中，块RAM (Block RAM)的基本类型是RAMB36，其内部包含两个RAMB18，分别是RAMB180和RAMB181。两种RAMB18都可以
@@ -100,7 +108,7 @@ subject to:
 
 \subsection{进化算法的基因型设计}
 
-\begin{figure*}[t]
+\begin{figure*}[h]
 	\centering
 	\resizebox{0.6\linewidth}{!}{
 	\begin{tikzpicture}[decoration={coil},
@@ -176,21 +184,21 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 设计了对应的基因型。
 
 \begin{itemize}
-	\item \textcolor{red}{\bf Distribution} 因为卷积加速器设计中使用的各硬核比例不一定完全符合FPGA板上的硬核资源比例，
+	\item \textcolor{red}{\bf 分布（Distribution）：} 因为卷积加速器设计中使用的各硬核比例不一定完全符合FPGA板上的硬核资源比例，
 		又由于UltraScale系列硬件的硬核资源为按列分布，因此将使用的硬核资源按比例分配到各列，这一部分基因型就是规定了按什么样的比例
 		将使用的硬核资源分配到各列。在解码该部分基因型时，首先将其归一化，然后根据归一化后的值和各列含有的硬核数目决定每一列放置
 		多少个该种类硬核。
-	\item \textcolor{blue}{\bf Location} 在我们决定了每一列放置硬核的数目之后，下一步需要决定的是硬核在每一列中的位置。
+	\item \textcolor{blue}{\bf 位置（Location）：} 在我们决定了每一列放置硬核的数目之后，下一步需要决定的是硬核在每一列中的位置。
 		这一部分基因型规定的就是每个硬核在该列的位置。此基因型使用 0$\rightarrow$1 浮点数对应硬核在列中从下到上的相对位置，
 		也就是基因型中位置值接近0的硬核将被放置在列下方的位置，接近1的硬核将被放在列上方的位置。
-	\item \textcolor{teal}{\bf Mapping} 最终，当确定了硬核放置的数目和位置之后，我们也就确定了在所有的物理硬核位置中，哪些
+	\item \textcolor{teal}{\bf 对应关系（Mapping）：} 最终，当确定了硬核放置的数目和位置之后，我们也就确定了在所有的物理硬核位置中，哪些
 		硬核位置被选中用于布局。最终需要确定的，是将逻辑网表中的硬核映射到物理位置时候的对应关系。我们将选中的硬核位置编号，
-		Mapping基因型中规定这些位置编号的排列，在解码时按顺序将基因型中的排列对应到网表中的硬核，这样就规定了逻辑网表中硬核
+		对应关系子基因型中规定这些位置编号的排列，在解码时按顺序将基因型中的排列对应到网表中的硬核，这样就规定了逻辑网表中硬核
 		到物理硬核的对应关系。这实际上影响的是每个卷积单元中硬核的连接关系。
 \end{itemize}
 
 以上说明的三种子基因型分别对应着布局问题的三个子问题，在图\ref{fig:genotype}中，我们对基因型设计进行了可视化。这三种子基因型
-是紧密相关、互相依赖的，因此无法拆解为三个单独的问题分别优化。我们针对这一特性应用 Composite Genotype~\cite{opt4jpaper} 来适应子问题的
+是紧密相关、互相依赖的，因此无法拆解为三个单独的问题分别优化。我们针对这一特性应用 复合基因型~\cite{opt4jpaper} (Composite Genotype) 来适应子问题的
 依赖关系，具体来说，三个子问题分别编码，在优化过程中分别更新，彼此之间不相互影响，但是在计算基因型的适应度函数 (Fitness Function)
 的时候，三个子基因型一同解码计算。
 
@@ -199,7 +207,7 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 
 为了适应浮点优化方法，我们通过解合法化 (Solution Legalization) 步骤对基因型采取量化等操作得到实际的布局，这一步骤在解码时进行。
 算法 \ref{algo:distribution} 展示了了分布基因型的解码和合法化过程。由于假定可用资源已知，因此我们首先将分布量化为整数，
-然后将每个整数值限制到每列的最大可放置硬核数。然后，我们将上一步去掉的硬核均匀分给其他的列。
+然后将每个整数值约束到每列的最大可放置硬核数。然后，我们将上一步去掉的硬核均匀分给其他的列。
 
 \begin{algorithm}
 	\SetKwFunction{GetDistribution}{GetDistribution}
@@ -284,7 +292,7 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 \end{algorithm}
 
 由于Mapping基因型只优化编码的顺序，而不对编码的值进行修改，所以不会产生不合法编码，也就不需要解合法化。
-以上内容详细阐述了解合法化的步骤，这些步骤保证了布局结果满足三个限制条件，并且与解析布局方法(Analytical Placement)
+以上内容详细阐述了解合法化的步骤，这些步骤保证了布局结果满足三个约束条件，并且与解析布局方法(Analytical Placement)
 相比，我们的合法化步骤开销更低。
 
 
@@ -300,7 +308,7 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 在建立了布局模型的基础上，本节详细阐述本文使用的进化算法优化方法。进化算法用于布局问题的优化相比传统的模拟退火与目前广泛应用的
 解析法相比主要有三点优势：（1）与模拟退火相比，进化算法基于种群的优化方式个体之间相互独立，天然具有大规模并行化加速的优势；
 （2）多目标遗传算法的发展使得进化算法相比其他方法更擅长优化多个目标函数，在本文中我们利用这一优势设计了两个目标函数分别优化
-线长和计算单元限制框，取得了比单目标更好的优化效果；（3）基于概率分布的进化算法在同样的问题规模可以在优化速度和结果质量上同时
+线长和计算单元边界框，取得了比单目标更好的优化效果；（3）基于概率分布的进化算法在同样的问题规模可以在优化速度和结果质量上同时
 超越state-of-the-art的解析布局算法。本节详细介绍RapidLayout布局引擎所使用的两种进化算法：非支配排序遗传算法与协方差矩阵
 适应进化策略。
 
@@ -323,6 +331,7 @@ dna/.style={decorate, thick, decoration={aspect=0, segment length=0.5cm}}]
 也称为非支配排序方法，是NSGA-II处理多个目标的核心方法，其思想是用“支配”的概念进行排序：如果个体A在各个衡量标准（多个目标函数值）上
 均非劣于个体B，则A支配B。在种群中可以根据支配关系将个体分为许多组，每一组内的个体互相不支配，每组内的个体和其他组的个体一定存在支配关系，
 这样的组成为帕累托前端（Pareto-Front)。简而言之，因为多目标的存在，在排序过程中只能将个体分为几组，而组内的个体无法直接判断孰优孰劣。
+这种基于非支配标准在多目标维度上对个体进行分组并排序的方法称为非支配排序方法(Non-dominated Sorting)。
 如图\ref{fig:NSGA-II}所示，第一轮淘汰使用的此种排序方法，但如果同一前端需要淘汰部分个体，则需要其他方法。
 Non-dominated Sorting的排序算法请见附录\ref{sec:nondominated} 算法 \ref{algo:nondominated}。
 
@@ -342,10 +351,13 @@ Crowd Distance Sorting的排序算法请见附录\ref{sec:crowd} 算法 \ref{alg
 协方差矩阵适应进化策略(Covariance Matrix Adapted Evolution Strategy, CMA-ES) 是实数域上的一种优化方法，
 适合于黑箱问题、非线性优化、病态(ill-conditioned)系统优化，并且无需导数\cite{cmapaper}。CMA-ES是一种
 state-of-the-art的进化算法，被用于包括神经网络参数优化\cite{nn2016cma}在内的多个领域。
-CMA-ES无需求导的特性使其适用于许多gradient-based方法失败的问题，或一些非平滑，非连续域的优化问题。
+
+
+CMA-ES无需求导的特性使其适用于许多基于梯度优化方法失败的问题，或一些非平滑，非连续域的优化问题。
 CMA-ES将产生可行解的过程建模为均值向量为$\mathbf{\mu}$，协方差矩阵为 $\mathbf{C_{\sigma}}$的高斯随机过程
 采样。在每次进化过程中新的可行解使用更新后的均值向量和协方差矩阵采样得到，然后根据目标函数对可行解进行排序，
 最后使用前25\%的可行解更新均值向量与协方差矩阵。算法\ref{algo:cma}详细描述了CMA-ES的实现原理和参数设置。
+
 
 {\bf 参数设置：}
 
@@ -405,14 +417,14 @@ $\sigma \in \mathbf{R}$
 
 为了适应大规模优化问题，本文修改了协方差矩阵的更新方法\cite{large-scale-cma}，
 令 $\mathbf{D^2}=diag(\mathbf{C})$, $c_{cov} = \frac{n+2}{3}c_{cov}^{def}$，
-也就是将协方差矩阵的更新限制在对角线，其余元素置零，并提高了学习率。这种优化方法使得
+也就是将协方差矩阵的更新约束在对角线，其余元素置零，并提高了学习率。这种优化方法使得
 CMA-ES的空间复杂度由二次减低为线性，加快了大规模问题的优化速度。
 
 
 
 \section{RapidLayout布局框架}
 
-上一节详细阐述了布局问题的建模、目标函数、优化限制，以及本文提出的进化算法基因型设计、解合法化步骤。在此基础上，
+上一节详细阐述了布局问题的建模、目标函数、优化约束，以及本文提出的进化算法基因型设计、解合法化步骤。在此基础上，
 我们基于Xilinx RapidWright FPGA 实现框架设计并且实现了端到端的布局布线框架，RapidLayout。RapidLayout
 的核心部分是上一节中描述的进化算法布局引擎，此小结中详细阐述RapidLayout的设计工作流程，各实现步骤的含义，
 内容，及实现方法。图\ref{fig:flow}展示了RapidLayout的工作流。
@@ -508,7 +520,7 @@ CMA-ES的空间复杂度由二次减低为线性，加快了大规模问题的�
 \end{figure}
 
 
-\circled{A} {\bf 逻辑网表复制}
+\circled{A} {\bf 逻辑网表复制：}
 RapidLayout的输入是一个卷积计算单元的逻辑网表，以一个DCP checkpoint 文件的形式存储。RapidLayout首先根据选定的FPGA器件型号
 和卷积计算单元内的各硬核比例计算出{\bf 最小可复制矩形域（Minimum Replicating Rectangle）} 同时确定矩形域最大可放置的卷积单
 元个数。最小可复制矩形域是进行布局方案优化的区域，其具体含义为：根据设计使用的硬核比例与物理硬核资源比例确定的最小矩形，在此矩形内
@@ -517,32 +529,32 @@ RapidLayout的输入是一个卷积计算单元的逻辑网表，以一个DCP ch
 个时钟域，可放置80个卷积运算单元，三种硬核的利用率均在95\%以上。这一最小可复制矩形区域内的布局结果可经过2次复制充满一个超逻辑域，
 可经过6次复制充满整个FPGA。
 
-\circled{B} {\bf 基于进化算法硬核布局}
+\circled{B} {\bf 基于进化算法硬核布局：}
 RapidLayout使用非支配排序遗传算法(Non-Dominated Sorting Genetic Algorithm II, NSGA-II) 或协方差矩阵适应进化策略
 (Covariance Matrix Adapted Evolution Strategy, CMA-ES) 两种进化算法对硬核布局优化。进化算法包括产生可行解，计算适应
 度，更新可行解等操作，在计算适应度的步骤需要根据布局方法计算线长。由于进化算法是一种重复优化方法(Iterative Method)，所以
 我们不可能依赖Vivado估计每一个可行解的线长，否则会需要依次进行物理布局，导致优化时间过长。RapidWright的优势在于可以快速获得
 FPGA的物理信息，因此本文利用Rapidwright快速计算出板上物理位置之间布线所需的线长。
 
-\circled{C} {\bf 物理网表布局和Site布线}
+\circled{C} {\bf 物理网表布局和Site布线：}
 优化过程结束，RapidLayout会得到最小可复制矩形内的最优布局结果。然后根据这一结果将逻辑网表和布局结果复制到整个超逻辑域（SLR），
 再修改物理网表，进行实际的物理布局操作。本文使用RapidWright提供的FPGA物理层API开发了三种硬核的布局方法，首先将硬核放置在对
 应的物理位置（Site），然后进行“Site 布线”，连接硬核与Site内部的信号接口，这一步骤保证了布局之后导出的DCP checkpoint文件
 与Vivado的兼容性。
 
-\circled{D} {\bf 流水线}
+\circled{D} {\bf 流水线：}
 布局完成之后，硬核的物理位置已经确定，因此可以估计硬核之间的布线线长和需要插入的寄存器个数，对较长的数据通路进行流水线，以得到
 较高的时钟频率。这个步骤在布局之后进行，是为了保证正确的数据通路插入合适的寄存器个数。进行流水线操作的目的是为了让整个加速器设
 计的时钟频率达到650MHz以上。650MHz是脉动阵列中Ultra RAM运行的上限，通过流水线插入寄存器的方式我们可以获得高于650MHz的时钟频率，但
 实际运行中的时钟还是需要设置在650MHz。此步骤在URAM $\rightarrow$ BRAM 和 BRAM $\rightarrow$ DSP 之间的数据通路插入
 流水线寄存器，数目根据线长确定。
 
-\circled{E} {\bf 超逻辑域布局与布线}
+\circled{E} {\bf 超逻辑域布局与布线：}
 RapidLayout负责完成硬核布局布线，控制逻辑和流水线寄存器等使用的LUT和Flip-Flop则又Vivado完成布局和布线。在此步骤中，流水线
 之后的设计首先被导出成DCP checkpoint文件，然后由Vivado读入完成超逻辑域的布局与布线，完成布局布线的设计也以DCP checkpoint
 的形式存储。
 
-\circled{F} {\bf 超逻辑域复制}
+\circled{F} {\bf 超逻辑域复制：}
 在上一步步骤中RapidLayout完成了单个超逻辑域的完整实现，以VU11P为例整个FPGA中有3个超逻辑域，每个超逻辑域内部的器件构造与排布
 相同。因此，我们使用RapidWright的硬件API开发了SLR复制的功能，将一个SLR的布局布线结果连同逻辑网表复制到整个FPGA的所有超逻辑域，
 由此获得了大幅的时间节省。
@@ -605,7 +617,7 @@ RapidLayout框架中，包含单个卷积单元的位置信息、整体的布局
 
 \begin{figure}
 \centering	
-\scalebox{1.2}{%
+\scalebox{1.4}{%
  \begin{tikzpicture}
  \centering
    \pgftext{%
@@ -672,7 +684,7 @@ SLR1和SLR2，得到完整的FPGA实现。}
 
 \section{本章小结}
 
-本章首先介绍了硬核布局建模为多目标优化问题的方法，明确了问题的优化目标与限制，阐述了本文的创新基因型设计与相应的
+本章首先介绍了硬核布局建模为多目标优化问题的方法，明确了问题的优化目标与约束，阐述了本文的创新基因型设计与相应的
 解合法化过程，明确NSGA-II与CMA-ES的算法原理与实现方案，最终介绍了RapidLayout布局框架的工作流，并
 以层层递进的方式举例阐述了脉动阵列的布局实现过程。
 
