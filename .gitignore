@@ -7,5 +7,6 @@
 *.fls 
 *.loc 
 *.soc 
-*.fdb_latexmk 
-main.pdf
+*.fdb_latexmk
+prev/
+reviews/ 
