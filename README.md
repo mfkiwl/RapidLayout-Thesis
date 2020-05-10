@@ -1,4 +1,4 @@
-# RapidLayout-Dissertation
+# RapidLayout-Thesis
 
 - Author: Niansong Zhang
 - Description: Thesis for the Bachelor of Engineering degree, based on the project RapidLayout: a fast hard block placement method for systolic arrays. 
